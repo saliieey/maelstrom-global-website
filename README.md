@@ -73,3 +73,58 @@ maelstrom-global-website/
 - TypeScript is configured for type safety
 - Tailwind CSS v4 is set up for styling
 - WordPress integration utilities are prepared in `/lib/wordpress.ts`
+
+## ⚡ Performance & SEO
+
+- ✅ **Performance Optimized**: Lazy loading for heavy animation libraries
+- ✅ **SEO Friendly**: Fast initial load, Core Web Vitals tracking
+- ✅ **Device Adaptive**: Automatically reduces animations on low-end devices
+- ✅ **Accessibility**: Respects `prefers-reduced-motion`
+
+**See** `PERFORMANCE_SUMMARY.md` for complete performance strategy.
+
+## 📱 Responsive Design
+
+- ✅ **Pixel Perfect**: Responsive on ALL devices (mobile, tablet, desktop)
+- ✅ **No Layout Collapse**: ResponsiveContainer ensures proper spacing
+- ✅ **No Horizontal Scroll**: Mandatory prevention implemented
+- ✅ **Mobile Optimized**: Touch targets, viewport fixes, safe areas
+- ✅ **Device Detection**: Real-time responsive hooks available
+- ✅ **Responsive Components**: Container, Image, Text, Animations
+
+**See** `RESPONSIVE_GUIDE.md` for complete responsive strategy.
+
+## 📐 Consistent Alignment (MANDATORY)
+
+- ✅ **Global Alignment System**: Consistent alignment across ENTIRE PROJECT
+- ✅ **No Random Alignments**: Mandatory alignment components and classes
+- ✅ **Consistent Spacing**: 8px base unit system (no random values)
+- ✅ **Section Padding**: Consistent responsive padding for all sections
+- ✅ **Container Max-Widths**: Consistent max-widths for all containers
+- ✅ **Grid Gap**: Consistent responsive gap for all grids
+- ✅ **Text Alignment**: Consistent rules (headings center, body left, CTA center)
+- ✅ **Global Application**: Applied to every page, every component
+
+**See** `ALIGNMENT_GUIDE.md` for complete alignment strategy.
+
+## 🌍 Multilingual Support (4 Languages)
+
+- ✅ **Languages**: English (en), Arabic (ar), Hindi (hi), Malayalam (ml)
+- ✅ **RTL Support**: Automatic RTL for Arabic
+- ✅ **Language Switcher**: Dropdown with flag icons (ideal UX)
+- ✅ **Auto Detection**: Detects browser language preference
+- ✅ **Cookie Persistence**: Remembers user's language choice
+- ✅ **SEO Friendly**: Locale-based URLs (/en/, /ar/, /hi/, /ml/)
+- ✅ **Navigation**: Categorized Services dropdown with headings
+
+**See** `I18N_GUIDE.md` for complete multilingual strategy.
+
+## 🎨 Animations
+
+- ✅ **GSAP** - Advanced scroll animations (lazy loaded)
+- ✅ **Three.js** - 3D graphics (lazy loaded)
+- ✅ **Framer Motion** - React animations
+- ✅ **Lenis** - Smooth scrolling
+- ✅ **Lottie** - Complex animations (lazy loaded)
+
+**See** `ANIMATION_SETUP.md` for animation documentation.
