@@ -4,7 +4,7 @@
  * Navigation Component
  * Glassmorphism navigation bar with 3D glassy feel
  * Fixed sticky position - content scrolls below
- * Dropdown: Show headings first, expand items when clicked
+ * Dropdown: Separate popup (like Mastercard) - Show headings first, expand items when clicked
  * High contrast for excellent visibility
  */
 
@@ -18,21 +18,49 @@ export const Navigation = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+  const [mobileExpandedItem, setMobileExpandedItem] = useState<string | null>(null);
+  const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number; width?: number } | null>(null);
+  const [isDropdownClosing, setIsDropdownClosing] = useState(false);
   const pathname = usePathname();
+  const navRef = useRef<HTMLElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const buttonRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
 
   const navigationItems = getNavigationItems();
+
+  // Calculate dropdown position based on nav bar position (positioned below nav bar, not overlaying)
+  const updateDropdownPosition = (item: NavigationItem) => {
+    if (navRef.current) {
+      const navRect = navRef.current.getBoundingClientRect();
+      
+      // Position dropdown below the nav bar, matching its width and position
+      setDropdownPosition({
+        top: navRect.bottom + 8, // Start below nav bar with small gap
+        left: navRect.left, // Align with nav bar left edge
+        width: navRect.width, // Match nav bar width exactly
+      });
+    }
+  };
 
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
         dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
+        !dropdownRef.current.contains(event.target as Node) &&
+        navRef.current &&
+        !navRef.current.contains(event.target as Node)
       ) {
+        // Start closing animation
+        setIsDropdownClosing(true);
+        // Close after animation completes
+        setTimeout(() => {
         setActiveDropdown(null);
         setExpandedCategory(null);
+        setDropdownPosition(null);
+          setIsDropdownClosing(false);
+        }, 250); // Match animation duration
       }
     };
 
@@ -45,24 +73,52 @@ export const Navigation = () => {
     };
   }, [activeDropdown]);
 
+  // Update dropdown position on scroll/resize
+  useEffect(() => {
+    if (activeDropdown) {
+      const item = navigationItems.find(item => item.href === activeDropdown);
+      if (item) {
+        updateDropdownPosition(item);
+        
+        const handleResize = () => updateDropdownPosition(item);
+        const handleScroll = () => updateDropdownPosition(item);
+        
+        window.addEventListener('resize', handleResize);
+        window.addEventListener('scroll', handleScroll, true);
+        
+        return () => {
+          window.removeEventListener('resize', handleResize);
+          window.removeEventListener('scroll', handleScroll, true);
+        };
+      }
+    }
+  }, [activeDropdown]);
+
   // Close mobile menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
         mobileMenuRef.current &&
-        !mobileMenuRef.current.contains(event.target as Node)
+        !mobileMenuRef.current.contains(event.target as Node) &&
+        navRef.current &&
+        !navRef.current.contains(event.target as Node)
       ) {
         setIsMobileMenuOpen(false);
-        setExpandedCategory(null);
+        setMobileExpandedItem(null);
       }
     };
 
     if (isMobileMenuOpen) {
       document.addEventListener('mousedown', handleClickOutside);
+      // Prevent body scroll when menu is open
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      document.body.style.overflow = '';
     };
   }, [isMobileMenuOpen]);
 
@@ -73,11 +129,21 @@ export const Navigation = () => {
   const toggleDropdown = (item: NavigationItem) => {
     if (item.children && item.children.length > 0) {
       if (activeDropdown === item.href) {
+        // Start closing animation
+        setIsDropdownClosing(true);
+        // Close after animation completes
+        setTimeout(() => {
         setActiveDropdown(null);
         setExpandedCategory(null);
+        setDropdownPosition(null);
+          setIsDropdownClosing(false);
+        }, 250); // Match animation duration
       } else {
+        setIsDropdownClosing(false);
         setActiveDropdown(item.href);
         setExpandedCategory(null); // Reset expanded category when opening dropdown
+        // Position will be calculated in useEffect, but trigger immediately
+        setTimeout(() => updateDropdownPosition(item), 0);
       }
     }
   };
@@ -93,74 +159,74 @@ export const Navigation = () => {
 
   return (
     <>
-      {/* Glassmorphism Navigation Bar - English Only */}
+      {/* Glassmorphism Navigation Bar - Capsule Shape - White Glassy Design */}
       <nav 
-        className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-[1400px] lg:w-[90%] xl:w-[1200px] rounded-2xl transition-all duration-300"
+        className="fixed top-4 sm:top-5 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-140px)] sm:w-[calc(100%-160px)] md:w-[calc(100%-180px)] max-w-[1000px] lg:w-[85%] xl:w-[900px] rounded-full transition-all duration-300"
         style={{
-          background: 'rgba(255, 255, 255, 0.08)',
-          backdropFilter: 'blur(80px) saturate(200%)',
-          WebkitBackdropFilter: 'blur(80px) saturate(200%)',
-          border: '1px solid rgba(255, 255, 255, 0.2)',
-          boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.12), inset 0 1px 0 0 rgba(255, 255, 255, 0.35)',
+          background: 'rgba(255, 255, 255, 0.25)',
+          backdropFilter: 'blur(30px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(30px) saturate(180%)',
+          border: '1px solid rgba(255, 255, 255, 0.4)',
+          boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.2), inset 0 1px 0 0 rgba(255, 255, 255, 0.6)',
         }}
-        ref={dropdownRef}
+        ref={navRef}
       >
-        <div className="w-full px-6 md:px-8 lg:px-12 xl:px-14 py-0">
-          {/* Main Navigation Row - Fixed Height for English with Perfect Spacing */}
-          <div className="flex items-center flex-nowrap justify-between h-20 lg:h-24">
-            {/* Logo - Perfect Alignment */}
-            <Link href="/" className="flex items-center gap-3 z-10 flex-shrink-0">
-              {/* Company Logo - Will be replaced when logo is provided */}
-              <div className="relative w-11 h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 flex-shrink-0">
-                {/* Placeholder - Remove when logo is added */}
-                <div className="w-full h-full bg-white/25 rounded-xl flex items-center justify-center border border-white/35 backdrop-blur-sm shadow-sm">
-                  <span className="text-xs md:text-sm font-bold text-gray-800">MG</span>
-                </div>
-                {/* Logo Image - Uncomment and update path when logo is provided */}
-                {/* <Image 
-                  src="/assets/images/logo/logo.svg" 
+        <div className="w-full px-3 sm:px-4 md:px-4 lg:px-5 xl:px-6 py-0">
+          {/* Main Navigation Row - Compact Height */}
+          <div className="flex items-center flex-nowrap justify-between h-10 sm:h-11 md:h-12 lg:h-12 min-h-0">
+            {/* Logo - Compact Size */}
+            <Link href="/" className="flex items-center z-10 flex-shrink-0 group">
+              {/* Company Logo */}
+              <div className="relative w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-9 lg:h-9 flex-shrink-0 transition-transform duration-300 group-hover:scale-105">
+                <img 
+                  src="/assets/images/logo/msgLogo.svg" 
                   alt="Maelstrom Global Logo" 
-                  width={56} 
-                  height={56}
-                  className="object-contain"
-                /> */}
+                  className="object-contain w-full h-full"
+                  style={{ 
+                    filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))',
+                  }}
+                />
               </div>
-              <span className="text-base md:text-lg lg:text-xl font-bold text-gray-900 tracking-tight hidden sm:block" 
-                    style={{ textShadow: '0 1px 2px rgba(255, 255, 255, 0.6)' }}>
-              Maelstrom Global
-            </span>
           </Link>
 
-            {/* Desktop Navigation - Perfect Consistent Spacing for Best UI/UX */}
-            <div className="hidden lg:flex items-center gap-6 xl:gap-8 flex-1 justify-end" style={{ boxSizing: 'border-box' }}>
+            {/* Desktop Navigation - Compact Horizontal Layout - Centered */}
+            <div className="hidden lg:flex items-center gap-2.5 lg:gap-3 xl:gap-4 flex-1 justify-center absolute left-1/2 -translate-x-1/2" style={{ boxSizing: 'border-box' }}>
             {navigationItems.map((item, index) => {
-              // Consistent font size - never changes on hover
-              const textSize = 'text-sm font-semibold';
+              const textSize = 'text-xs lg:text-sm xl:text-sm font-semibold';
               
               return (
-                <div key={item.href} className="relative flex-shrink-0" style={{ boxSizing: 'border-box' }}>
+                <div key={item.href} className="relative flex-shrink-0 flex items-center" style={{ boxSizing: 'border-box' }}>
                 {item.children && item.children.length > 0 ? (
-                  <div className="relative">
+                  <div className="relative flex items-center">
                     <button
+                      ref={(el) => {
+                        if (el) {
+                          buttonRefs.current.set(item.href, el);
+                        } else {
+                          buttonRefs.current.delete(item.href);
+                        }
+                      }}
                       onClick={() => toggleDropdown(item)}
-                          className={`group flex items-center gap-1.5 px-2 py-2 ${textSize} transition-colors duration-200 whitespace-nowrap ${
+                          className={`group flex items-center gap-1 px-1.5 lg:px-2 py-1.5 ${textSize} transition-colors duration-200 whitespace-nowrap leading-none ${
                             isActive(item.href) || activeDropdown === item.href
-                              ? 'text-orange-600 font-semibold'
-                              : 'text-gray-900 hover:text-orange-600'
+                              ? 'text-[#f26533] font-semibold'
+                              : 'text-white hover:text-[#f26533]'
                       }`}
                           style={{ 
                             boxSizing: 'border-box',
                             borderBottom: (isActive(item.href) || activeDropdown === item.href) 
                               ? '2px solid currentColor' 
                               : '2px solid transparent',
+                            lineHeight: '1.2',
                           }}
                       aria-expanded={activeDropdown === item.href}
+                      title={item.label[locale]}
                     >
-                          <span title={item.label[locale]}>
+                          <span className="inline-block align-middle">
                       {item.label[locale]}
                           </span>
                       <svg
-                            className="w-4 h-4 transition-transform duration-300 flex-shrink-0 ml-0.5"
+                            className="w-3 h-3 xl:w-3.5 xl:h-3.5 transition-transform duration-300 flex-shrink-0 ml-0.5 inline-block align-middle"
                             style={{
                               transform: activeDropdown === item.href ? 'rotate(180deg)' : 'rotate(0deg)',
                             }}
@@ -180,37 +246,39 @@ export const Navigation = () => {
                 ) : (
                   <Link
                     href={item.href}
-                        className={`group inline-block px-2 py-2 ${textSize} transition-colors duration-200 whitespace-nowrap ${
+                        className={`group flex items-center px-1.5 lg:px-2 py-1.5 ${textSize} transition-colors duration-200 whitespace-nowrap leading-none ${
                       isActive(item.href)
-                            ? 'text-orange-600 font-semibold'
-                            : 'text-gray-900 hover:text-orange-600'
+                            ? 'text-[#f26533] font-semibold'
+                            : 'text-white hover:text-[#f26533]'
                     }`}
                         style={{ 
                           boxSizing: 'border-box',
                           borderBottom: isActive(item.href) 
                             ? '2px solid currentColor' 
                             : '2px solid transparent',
+                          lineHeight: '1.2',
                         }}
                         title={item.label[locale]}
                   >
-                    {item.label[locale]}
+                    <span className="inline-block align-middle">{item.label[locale]}</span>
                   </Link>
                 )}
               </div>
                 );
               })}
+              
           </div>
 
-            {/* Mobile Menu Button - Perfect Alignment with Consistent Spacing */}
-            <div className="flex items-center flex-shrink-0 ml-6 xl:ml-8">
+
+            {/* Mobile/Tablet Hamburger Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="lg:hidden p-2 text-gray-900 hover:text-orange-600 transition-colors duration-200"
+              className="lg:hidden p-1.5 text-white hover:text-[#f26533] transition-colors duration-200 flex-shrink-0"
               aria-label="Toggle menu"
               aria-expanded={isMobileMenuOpen}
             >
               <svg
-                className="w-6 h-6"
+                className="w-5 h-5 sm:w-5 sm:h-5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -232,11 +300,225 @@ export const Navigation = () => {
               </svg>
             </button>
           </div>
-        </div>
+          </div>
+      </nav>
 
-          {/* Dropdown Content - Clean Agency Style */}
-          {activeDropdown && (
-            <div className="border-t border-gray-200/40 pt-6 pb-5 hidden lg:block">
+      {/* WhatsApp Contact Button - Floating Glassy Button Next to Nav Bar (Right Side) */}
+      <a
+        href="https://wa.me/1234567890?text=Hello%20Maelstrom%20Global,%20I%20would%20like%20to%20get%20in%20touch."
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed top-4 sm:top-5 whatsapp-button-position z-50 flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-12 lg:h-12 rounded-full transition-all duration-300 hover:scale-110 group"
+        style={{
+          background: 'rgba(255, 255, 255, 0.25)',
+          backdropFilter: 'blur(30px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(30px) saturate(180%)',
+          border: '1px solid rgba(255, 255, 255, 0.4)',
+          boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.2), inset 0 1px 0 0 rgba(255, 255, 255, 0.6)',
+        }}
+        aria-label="Contact us on WhatsApp"
+        title="Contact us on WhatsApp"
+      >
+        <svg
+          className="w-5 h-5 sm:w-5.5 sm:h-5.5 md:w-6 md:h-6 lg:w-6 lg:h-6 text-[#25D366] group-hover:text-[#f26533] transition-colors duration-300"
+          fill="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+        </svg>
+      </a>
+
+      {/* Mobile/Tablet Menu Popup Overlay - Mastercard Style */}
+      {isMobileMenuOpen && (
+        <>
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[55] lg:hidden"
+            onClick={() => {
+              setIsMobileMenuOpen(false);
+              setMobileExpandedItem(null);
+            }}
+          />
+          
+          {/* Popup Menu */}
+        <div
+          ref={mobileMenuRef}
+            className="fixed top-20 sm:top-24 left-1/2 z-[60] w-[90%] sm:w-[85%] max-w-md lg:hidden rounded-2xl shadow-2xl mobile-menu-scroll"
+            style={{
+              background: 'rgba(255, 255, 255, 0.25)',
+              backdropFilter: 'blur(30px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(30px) saturate(180%)',
+              border: '1px solid rgba(255, 255, 255, 0.4)',
+              boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.2), inset 0 1px 0 0 rgba(255, 255, 255, 0.6)',
+              maxHeight: 'calc(100vh - 120px)',
+              overflowY: 'auto',
+              overflowX: 'hidden',
+              animation: 'mobileMenuFadeIn 0.3s ease-out',
+              transform: 'translateX(-50%)',
+            }}
+        >
+            <div className="px-6 py-6 space-y-1">
+            {navigationItems.map((item) => (
+                <div key={item.href} className="border-b border-white/20 last:border-b-0">
+                {item.children && item.children.length > 0 ? (
+                  <div>
+                      {/* Parent Item with Expand Button */}
+                    <button
+                        onClick={() => {
+                          setMobileExpandedItem(mobileExpandedItem === item.href ? null : item.href);
+                            setExpandedCategory(null);
+                        }}
+                        className={`w-full flex items-center justify-between py-4 text-left transition-colors duration-200 ${
+                        isActive(item.href)
+                            ? 'text-[#f26533] font-semibold'
+                            : 'text-white hover:text-[#f26533]'
+                      }`}
+                    >
+                        <span className="text-base font-semibold">
+                      {item.label[locale]}
+                        </span>
+                      <svg
+                          className={`w-5 h-5 transition-transform duration-300 flex-shrink-0 ${
+                            mobileExpandedItem === item.href ? 'rotate-180' : ''
+                        }`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    </button>
+
+                      {/* Expanded Sub-items */}
+                      <div 
+                        className="overflow-hidden"
+                        style={{
+                          maxHeight: mobileExpandedItem === item.href ? '1000px' : '0px',
+                          opacity: mobileExpandedItem === item.href ? 1 : 0,
+                          transform: mobileExpandedItem === item.href ? 'translateY(0)' : 'translateY(-10px)',
+                          transition: 'max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                        }}
+                      >
+                        {mobileExpandedItem === item.href && (
+                        <div className="pb-4 space-y-1">
+                          {item.children?.map((category, categoryIndex) => {
+                            const categoryKey = `${item.href}-${categoryIndex}`;
+                            const isCategoryExpanded = expandedCategory === categoryKey;
+                            
+                            return (
+                              <div key={categoryIndex} className="pl-4 border-l-2 border-white/20">
+                                {/* Category Heading */}
+                                <button
+                                  onClick={() => toggleCategory(categoryKey)}
+                                  className="w-full flex items-center justify-between py-3 text-left transition-colors duration-200 group hover:text-[#f26533]"
+                                >
+                                  <h3 className="text-xs font-semibold uppercase text-white tracking-wider transition-colors duration-200 flex-1 pr-2">
+                              {category.label[locale]}
+                                  </h3>
+                                  {category.children && category.children.length > 0 && (
+                                    <svg
+                                      className={`w-4 h-4 text-white/70 transition-transform duration-300 ease-in-out ${
+                                        isCategoryExpanded ? 'rotate-180' : ''
+                                      }`}
+                                      fill="none"
+                                      stroke="currentColor"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M19 9l-7 7-7-7"
+                                      />
+                                    </svg>
+                                  )}
+                                </button>
+
+                                {/* Category Items */}
+                                {category.children && category.children.length > 0 && (
+                                  <div 
+                                    className="overflow-hidden"
+                                    style={{
+                                      maxHeight: isCategoryExpanded ? `${category.children.length * 44 + 16}px` : '0px',
+                                      opacity: isCategoryExpanded ? 1 : 0,
+                                      transform: isCategoryExpanded ? 'translateY(0)' : 'translateY(-10px)',
+                                      transition: 'max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                                      transitionDelay: isCategoryExpanded ? '0s' : '0s',
+                                    }}
+                                  >
+                                    <div className="pt-2 pb-3 pl-6 space-y-1">
+                                      {category.children.map((subItem, subIndex) => (
+                                <Link
+                                  key={subIndex}
+                                  href={subItem.href}
+                                  onClick={() => {
+                                    setIsMobileMenuOpen(false);
+                                            setMobileExpandedItem(null);
+                                            setExpandedCategory(null);
+                                  }}
+                                          className="block py-2 text-sm text-white/90 hover:text-[#f26533] transition-colors duration-200"
+                                >
+                                  {subItem.label[locale]}
+                                </Link>
+                              ))}
+                          </div>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                        )}
+                      </div>
+                </div>
+                ) : (
+                  <Link
+                    href={item.href}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                      className={`block py-4 text-base font-semibold transition-colors duration-200 ${
+                      isActive(item.href)
+                          ? 'text-[#f26533]'
+                          : 'text-white hover:text-[#f26533]'
+                    }`}
+                  >
+                    {item.label[locale]}
+                  </Link>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+        </>
+      )}
+
+      {/* Desktop Dropdown Popup - Mastercard Style - Desktop Only */}
+      {activeDropdown && dropdownPosition && (
+        <div
+          ref={dropdownRef}
+          className={`fixed z-[60] hidden lg:block ${isDropdownClosing ? 'animate-dropdown-fade-out' : 'animate-dropdown-fade-in'}`}
+          style={{
+            top: `${dropdownPosition.top}px`,
+            left: `${dropdownPosition.left}px`,
+            width: `${dropdownPosition.width}px`,
+          }}
+        >
+          <div
+            className="rounded-2xl shadow-2xl w-full"
+            style={{
+              background: 'rgba(255, 255, 255, 0.25)',
+              backdropFilter: 'blur(30px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(30px) saturate(180%)',
+              border: '1px solid rgba(255, 255, 255, 0.4)',
+              boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.2), inset 0 1px 0 0 rgba(255, 255, 255, 0.6)',
+            }}
+          >
+            <div className="px-6 py-5 space-y-1.5">
               {navigationItems
                 .filter((item) => item.href === activeDropdown && item.children && item.children.length > 0)
                 .map((item) => (
@@ -255,17 +537,17 @@ export const Navigation = () => {
                           {/* Category Heading - Clickable to expand (Stacked Vertically) */}
                           <button
                             onClick={() => toggleCategory(categoryKey)}
-                            className="w-full flex items-center justify-between py-3 text-left transition-colors duration-200 group hover:text-orange-600"
+                            className="w-full flex items-center justify-between py-3 text-left transition-colors duration-200 group hover:text-[#f26533]"
                           >
                               <h3 
-                                className={`text-xs font-semibold uppercase text-gray-700 tracking-wider transition-colors duration-200 truncate flex-1 pr-2`}
+                                className={`text-xs font-semibold uppercase text-white tracking-wider transition-colors duration-200 flex-1 pr-2`}
                                 title={category.label[locale]}
                               >
                                 {category.label[locale]}
                               </h3>
                             {category.children && category.children.length > 0 && (
                               <svg
-                                className={`w-4 h-4 text-gray-400 transition-transform duration-300 ease-in-out ${
+                                className={`w-4 h-4 text-white/70 transition-transform duration-300 ease-in-out ${
                                   isExpanded ? 'rotate-180' : ''
                                 }`}
                                 fill="none"
@@ -299,10 +581,17 @@ export const Navigation = () => {
                                     key={subIndex}
                                     href={subItem.href}
                                     onClick={() => {
+                                      // Start closing animation
+                                      setIsDropdownClosing(true);
+                                      // Close after animation completes
+                                      setTimeout(() => {
                                       setActiveDropdown(null);
                                       setExpandedCategory(null);
+                                      setDropdownPosition(null);
+                                        setIsDropdownClosing(false);
+                                      }, 250);
                                     }}
-                                    className="block py-2 text-sm text-gray-600 hover:text-orange-600 transition-colors duration-200 truncate"
+                                    className="block py-2 text-sm text-white/90 hover:text-[#f26533] transition-colors duration-200"
                                     title={subItem.label[locale]}
                                   >
                                     {subItem.label[locale]}
@@ -317,157 +606,12 @@ export const Navigation = () => {
                   </div>
                 ))}
             </div>
-          )}
-      </div>
-
-        {/* Mobile Menu - Glassmorphism Style (Professional - Same as Desktop) */}
-      {isMobileMenuOpen && (
-        <div
-          ref={mobileMenuRef}
-            className="lg:hidden border-t border-gray-300/30"
-            style={{
-              background: 'rgba(255, 255, 255, 0.08)',
-              backdropFilter: 'blur(40px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-            }}
-        >
-            <div className="px-6 py-4 space-y-2">
-            {navigationItems.map((item) => (
-              <div key={item.href}>
-                {item.children && item.children.length > 0 ? (
-                  <div>
-                    <button
-                        onClick={() => {
-                          if (activeDropdown === item.href) {
-                            setActiveDropdown(null);
-                            setExpandedCategory(null);
-                          } else {
-                            setActiveDropdown(item.href);
-                            setExpandedCategory(null);
-                          }
-                        }}
-                        className={`w-full flex items-center justify-between py-3 text-sm font-semibold transition-colors duration-200 min-w-0 ${
-                        isActive(item.href)
-                            ? 'text-orange-600'
-                            : 'text-gray-900 hover:text-orange-600'
-                      }`}
-                    >
-                        <span className="truncate flex-1 text-left pr-2" title={item.label[locale]}>
-                      {item.label[locale]}
-                        </span>
-                      <svg
-                          className={`w-5 h-5 transition-transform duration-200 flex-shrink-0 ${
-                          activeDropdown === item.href ? 'rotate-180' : ''
-                        }`}
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
-                    </button>
-
-                      {/* Mobile Dropdown - Same Vertical Stack as Desktop */}
-                    {activeDropdown === item.href && (
-                        <div className="mt-2 ml-4 space-y-1.5">
-                          {item.children.map((category, categoryIndex) => {
-                            const mobileCategoryKey = `${activeDropdown}-${categoryIndex}`;
-                            const isMobileExpanded = expandedCategory === mobileCategoryKey;
-                            
-                            return (
-                              <div key={categoryIndex} className="overflow-hidden">
-                                <button
-                                  onClick={() => toggleCategory(mobileCategoryKey)}
-                                  className="w-full flex items-center justify-between py-2.5 text-xs font-semibold uppercase text-gray-700 hover:text-orange-600 transition-colors min-w-0"
-                                >
-                                  <span className="truncate flex-1 text-left pr-2" title={category.label[locale]}>
-                              {category.label[locale]}
-                                  </span>
-                                  {category.children && category.children.length > 0 && (
-                                    <svg
-                                      className={`w-4 h-4 transition-transform duration-300 flex-shrink-0 ${
-                                        isMobileExpanded ? 'rotate-180' : ''
-                                      }`}
-                                      fill="none"
-                                      stroke="currentColor"
-                                      viewBox="0 0 24 24"
-                                    >
-                                      <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M19 9l-7 7-7-7"
-                                      />
-                                    </svg>
-                                  )}
-                                </button>
-                                {isMobileExpanded && category.children && category.children.length > 0 && (
-                                  <div 
-                                    className="overflow-hidden transition-all duration-400 ease-out"
-                                    style={{
-                                      maxHeight: isMobileExpanded ? `${category.children.length * 44 + 16}px` : '0px',
-                                      opacity: isMobileExpanded ? 1 : 0,
-                                      transition: 'max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease-out',
-                                    }}
-                                  >
-                                    <div className="pt-2 pb-3 pl-8 space-y-1">
-                                      {category.children.map((subItem, subIndex) => (
-                                <Link
-                                  key={subIndex}
-                                  href={subItem.href}
-                                  onClick={() => {
-                                    setIsMobileMenuOpen(false);
-                                    setActiveDropdown(null);
-                                            setExpandedCategory(null);
-                                  }}
-                                          className="block py-2 text-sm text-gray-600 hover:text-orange-600 transition-colors duration-200 truncate"
-                                          title={subItem.label[locale]}
-                                >
-                                  {subItem.label[locale]}
-                                </Link>
-                              ))}
-                          </div>
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          })}
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <Link
-                    href={item.href}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                      className={`block py-3 text-sm font-semibold transition-colors duration-200 truncate ${
-                      isActive(item.href)
-                          ? 'text-orange-600'
-                          : 'text-gray-900 hover:text-orange-600'
-                    }`}
-                      title={item.label[locale]}
-                  >
-                    {item.label[locale]}
-                  </Link>
-                )}
-              </div>
-            ))}
           </div>
         </div>
       )}
-    </nav>
       
-      {/* Spacer to push content below fixed nav - Fixed Height for English */}
-      <div className={`transition-all duration-300 ease-in-out ${
-        activeDropdown 
-          ? 'h-32 md:h-36 lg:h-[280px]' 
-          : 'h-24 md:h-28 lg:h-32'
-      }`} />
+      {/* Spacer to push content below fixed nav - Compact Height */}
+      <div className="h-14 sm:h-16 md:h-[72px] lg:h-16 transition-all duration-300 ease-in-out" />
     </>
   );
 };
-
