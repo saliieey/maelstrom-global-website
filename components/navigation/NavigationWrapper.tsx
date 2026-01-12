@@ -1,11 +1,11 @@
 'use client';
 
-/**
- * Navigation Wrapper
- * Simple wrapper for Navigation component - English only
- */
+import dynamic from 'next/dynamic';
 
-import { Navigation } from './Navigation';
+const Navigation = dynamic(
+  () => import('./Navigation').then((mod) => mod.Navigation),
+  { ssr: false }
+);
 
 export const NavigationWrapper = () => {
   return <Navigation />;
