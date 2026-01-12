@@ -7,7 +7,7 @@
 export default function Home() {
   return (
     <main className="min-h-screen">
-      <div className="container mx-auto px-4 py-16">
+      <div className="container mx-auto px-4 pt-4 pb-16">
         <div className="text-center space-y-8">
           <h1 className="text-4xl md:text-6xl font-bold mb-4 text-white drop-shadow-lg" 
               style={{ textShadow: '0 2px 10px rgba(0, 0, 0, 0.3)' }}>
@@ -19,7 +19,7 @@ export default function Home() {
         </div>
         
         {/* Demo content to show scrolling effect below navigation */}
-        <div className="mt-32 space-y-16">
+        <div className="mt-8 space-y-16">
           {[...Array(5)].map((_, i) => (
             <div 
               key={i} 
