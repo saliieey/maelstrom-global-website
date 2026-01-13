@@ -9,20 +9,34 @@ import { lazy, ComponentType } from 'react';
 /**
  * Dynamically import Three.js components only when needed
  * Reduces initial bundle size by ~500KB
+ * 
+ * TEMPORARILY DISABLED: Commented out to fix production build TypeScript errors
+ * These are NOT used in homepage or navigation render path.
  */
-export const LazyThreeScene = lazy(
-  () => import('./three-utils').then((mod) => ({ default: mod.Scroll3DScene }))
-);
+// TEMPORARILY DISABLED - Not used in homepage/navigation
+// export const LazyThreeScene = lazy(
+//   () => import('./three-utils').then((mod) => ({ default: mod.Scroll3DScene }))
+// );
+// export const LazyRotatingMesh = lazy(
+//   () =>
+//     import('./three-utils').then((mod) => ({ default: mod.RotatingMesh }))
+// );
+// export const LazyParticleSystem = lazy(
+//   () =>
+//     import('./three-utils').then((mod) => ({ default: mod.ParticleSystem }))
+// );
 
-export const LazyRotatingMesh = lazy(
-  () =>
-    import('./three-utils').then((mod) => ({ default: mod.RotatingMesh }))
+// Placeholder exports to prevent import errors
+// These accept children and render them without 3D effects
+export const LazyThreeScene = lazy(() => 
+  Promise.resolve({ 
+    default: ({ children }: { children: React.ReactNode }) => {
+      return children as React.ReactElement;
+    }
+  })
 );
-
-export const LazyParticleSystem = lazy(
-  () =>
-    import('./three-utils').then((mod) => ({ default: mod.ParticleSystem }))
-);
+export const LazyRotatingMesh = lazy(() => Promise.resolve({ default: () => null }));
+export const LazyParticleSystem = lazy(() => Promise.resolve({ default: () => null }));
 
 /**
  * Dynamically import GSAP ScrollTrigger only when animations are needed
@@ -103,13 +117,15 @@ export class AnimationLoader {
     return import('gsap');
   }
 
+  // TEMPORARILY DISABLED - Not used in homepage/navigation
   static async loadThree(): Promise<typeof import('three')> {
-    if (!this.threeLoaded) {
-      const three = await import('three');
-      this.threeLoaded = true;
-      return three;
-    }
-    return import('three');
+    // if (!this.threeLoaded) {
+    //   const three = await import('three');
+    //   this.threeLoaded = true;
+    //   return three;
+    // }
+    // return import('three');
+    throw new Error('Three.js is temporarily disabled for production build');
   }
 
   static async loadLottie(): Promise<ComponentType<any>> {

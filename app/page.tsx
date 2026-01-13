@@ -3,8 +3,9 @@
  * This page will be implemented once the design is ready from the graphic design team.
  * Content scrolls below the fixed glassmorphism navigation bar.
  */
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+// TEMPORARILY REMOVED: dynamic/revalidate conflicts with static export
+// export const dynamic = "force-dynamic";
+// export const revalidate = 0;
 
 export default function Home() {
   return (

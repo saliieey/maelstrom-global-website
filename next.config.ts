@@ -1,25 +1,28 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // ✅ REQUIRED for static export
+  output: "export",
+
   // Performance optimizations
-  compress: true, // Enable gzip compression
-  poweredByHeader: false, // Remove X-Powered-By header for security
-  reactStrictMode: true, // Enable React strict mode
+  compress: true,
+  poweredByHeader: false,
+  reactStrictMode: true,
 
   // Optimize images
   images: {
-    formats: ['image/avif', 'image/webp'],
+    unoptimized: true, // ✅ REQUIRED for static export
+    formats: ["image/avif", "image/webp"],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     minimumCacheTTL: 60,
   },
 
-  // Optimize font loading
-  optimizeFonts: true,
-
-  // Experimental features for performance
+  // Experimental features
   experimental: {
-    optimizePackageImports: ['framer-motion', 'gsap', 'three'],
+    // TEMPORARILY DISABLED: "three" removed to fix production build TypeScript errors
+    // Not used in homepage or navigation render path
+    optimizePackageImports: ["framer-motion", "gsap"],
   },
 };
 

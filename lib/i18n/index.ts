@@ -4,7 +4,9 @@
  */
 
 export * from './config';
-export * from './messages';
 export * from './navigation';
-export * from './utils';
+// Explicit exports to avoid 't' function name conflict
+// Export utils.t as the main translation function, messages.t is for nested keys
+export { messages, getTranslation, type Messages, type TranslationKey } from './messages';
+export { getLocaleFromPath, removeLocaleFromPath, addLocaleToPath, t } from './utils';
 

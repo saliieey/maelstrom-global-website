@@ -6,13 +6,14 @@
  */
 
 import { Suspense, lazy, useEffect, useRef, useState } from 'react';
-import { createIntersectionObserver, prefersReducedMotion } from '@/lib/animations/lazy-load';
+import { createIntersectionObserver, prefersReducedMotion, LazyThreeScene } from '@/lib/animations/lazy-load';
 
-const LazyThreeScene = lazy(() =>
-  import('@/lib/animations/three-utils').then((mod) => ({
-    default: mod.Scroll3DScene,
-  }))
-);
+// TEMPORARILY DISABLED: Using placeholder from lazy-load.ts to avoid Three.js imports
+// const LazyThreeScene = lazy(() =>
+//   import('@/lib/animations/three-utils').then((mod) => ({
+//     default: mod.Scroll3DScene,
+//   }))
+// );
 
 interface PerformanceWrapperProps {
   children: React.ReactNode;
