@@ -496,36 +496,7 @@ main > div {
   }
 }
 
-/* WhatsApp Button Responsive Positioning */
-.whatsapp-button-position {
-  right: 16px;
-}
-
-@media (min-width: 640px) {
-  .whatsapp-button-position {
-    right: 20px;
-  }
-}
-
-@media (min-width: 768px) {
-  .whatsapp-button-position {
-    right: 24px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .whatsapp-button-position {
-    left: calc(50% + min(42.5%, 500px) + 8px);
-    right: auto;
-  }
-}
-
-@media (min-width: 1280px) {
-  .whatsapp-button-position {
-    left: calc(50% + 450px + 8px);
-    right: auto;
-  }
-}
+/* WhatsApp Button Positioning - Now handled by flexbox in Navigation component */
 
 .animate-dropdown-fade-in {
   animation: dropdownFadeIn 0.3s ease-out;
