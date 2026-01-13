@@ -73,8 +73,8 @@ export const HeroScroll = () => {
         autoAlpha: 0,
       });
 
-      // Calculate gap for tablet
-      const gap = 88;
+      // Calculate gap for tablet: 24px (top gap) + ~56px (navbar height) + 24px (bottom gap) = 104px
+      const gap = 104;
       
       // Pin the sticky container
       ScrollTrigger.create({
@@ -173,8 +173,9 @@ export const HeroScroll = () => {
         autoAlpha: 0,
       });
 
-      // Calculate gap based on screen size
-      const gap = window.innerWidth >= 640 ? 88 : 72;
+      // Calculate gap for desktop: 24px (top gap) + ~56px (navbar height) + 24px (bottom gap) = 104px
+      // Desktop uses slightly more space for better visual balance
+      const gap = 120;
       
       // Pin the sticky container - start pinning when container reaches gap position
       ScrollTrigger.create({
@@ -237,9 +238,9 @@ export const HeroScroll = () => {
 
     // Mobile (< 768px) - Static layout like Mastercard (no scroll animation)
     mm.add("(max-width: 767px)", () => {
-      // Video wrapper: Static card size from the start (no animation)
+      // Video wrapper: Static card size from the start (no animation) - Match navbar width (90vw)
       gsap.set(videoWrapper, {
-        width: "90%",
+        width: "90vw",
         height: "auto",
         borderRadius: "24px",
         position: "relative",
@@ -251,12 +252,12 @@ export const HeroScroll = () => {
         scale: 1,
       });
 
-      // Left content: Visible above video, static position with standard spacing
+      // Left content: Visible above video, static position with standard spacing - Match navbar width (90vw)
       gsap.set(leftContent, {
         position: "relative",
         display: "block",
-        width: "90%",
-        maxWidth: "400px",
+        width: "90vw",
+        maxWidth: "none",
         margin: "2rem auto 2rem auto",
         paddingTop: "1rem",
         paddingBottom: "0",
@@ -268,12 +269,12 @@ export const HeroScroll = () => {
         zIndex: 1,
       });
 
-      // Right content: Visible below video, static position with standard spacing
+      // Right content: Visible below video, static position with standard spacing - Match navbar width (90vw)
       gsap.set(rightContent, {
         position: "relative",
         display: "block",
-        width: "90%",
-        maxWidth: "400px",
+        width: "90vw",
+        maxWidth: "none",
         margin: "2rem auto 2rem auto",
         paddingTop: "2rem",
         paddingBottom: "1rem",
@@ -287,8 +288,9 @@ export const HeroScroll = () => {
       });
 
       // No ScrollTrigger animation on mobile - static layout only
-      // Just maintain the gap from navbar
-      const mobileGap = 72;
+      // Match the gap above navbar (top-6 = 24px) + navbar height (~56px average) + gap below (24px) = 104px
+      // This creates perfect symmetry: 24px gap above = 24px gap below
+      const mobileGap = 104; // Consistent 24px gap above and below navbar
       gsap.set(sticky, { top: `${mobileGap}px` });
     });
 
@@ -305,28 +307,25 @@ export const HeroScroll = () => {
       className="relative w-full"
       style={{ height: "300vh" }}
     >
-      {/* Spacer to maintain gap from navbar */}
-      <div className="h-[72px] sm:h-[88px] w-full" />
+      {/* Spacer to maintain gap from navbar - Perfect symmetry: 24px gap above = 24px gap below */}
+      {/* Mobile: 24px (top gap) + ~56px (navbar height) + 24px (bottom gap) = 104px */}
+      <div className="h-[104px] md:h-[120px] w-full" />
       
       <div
         ref={stickyRef}
-        className="sticky top-[72px] sm:top-[88px] w-full md:h-screen overflow-hidden relative"
+        className="sticky top-[104px] md:top-[120px] w-full md:h-screen overflow-hidden relative"
         style={{ 
           paddingLeft: "1rem",
           paddingRight: "1rem",
           minHeight: "auto",
         }}
       >
-        {/* Video Wrapper - This is what we animate */}
+        {/* Video Wrapper - This is what we animate - Mobile: w-[90vw] to match navbar */}
         <div
           ref={videoWrapperRef}
-          className="w-full md:h-full overflow-hidden"
+          className="w-[90vw] md:w-full md:h-full overflow-hidden mx-auto md:mx-0"
           style={{ 
             borderRadius: "20px",
-            position: "absolute",
-            top: 0,
-            left: "50%",
-            transform: "translateX(-50%)",
           }}
         >
           {/* Video Element - Always maintains aspect ratio */}
@@ -342,10 +341,10 @@ export const HeroScroll = () => {
           />
         </div>
 
-        {/* Left Text Content - Hidden initially with CSS classes */}
+        {/* Left Text Content - Hidden initially with CSS classes - Mobile: w-[90vw] to match navbar */}
         <div
           ref={leftContentRef}
-          className="text-white text-left opacity-0 invisible"
+          className="text-white text-left opacity-0 invisible w-[90vw] md:w-auto mx-auto"
         >
           <div className="flex items-center gap-2 mb-5">
             <div className="w-2 h-2 rounded-full bg-[#ff6b35] flex-shrink-0" />
@@ -358,10 +357,10 @@ export const HeroScroll = () => {
           </div>
         </div>
 
-        {/* Right Text Content - Hidden initially with CSS classes */}
+        {/* Right Text Content - Hidden initially with CSS classes - Mobile: w-[90vw] to match navbar */}
         <div
           ref={rightContentRef}
-          className="text-white text-left md:text-right opacity-0 invisible"
+          className="text-white text-left md:text-right opacity-0 invisible w-[90vw] md:w-auto mx-auto"
         >
           <div className="space-y-6">
             <div className="border-b border-white/10 pb-6 last:border-0 last:pb-0">
