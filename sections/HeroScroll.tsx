@@ -73,8 +73,9 @@ export const HeroScroll = () => {
         autoAlpha: 0,
       });
 
-      // Calculate gap for tablet: 24px (top gap) + ~56px (navbar height) + 24px (bottom gap) = 104px
-      const gap = 104;
+      // Calculate gap for tablet: Matches top gap (24px) for symmetry
+      // Navbar at top-6 (24px) + navbar height (~48px) + gap (24px) = ~96px, using 88px for tighter fit
+      const gap = 88;
       
       // Pin the sticky container
       ScrollTrigger.create({
@@ -288,9 +289,9 @@ export const HeroScroll = () => {
       });
 
       // No ScrollTrigger animation on mobile - static layout only
-      // Match the gap above navbar (top-6 = 24px) + navbar height (~56px average) + gap below (24px) = 104px
-      // This creates perfect symmetry: 24px gap above = 24px gap below
-      const mobileGap = 104; // Consistent 24px gap above and below navbar
+      // Matches top gap (24px) for perfect symmetry: navbar at top-6 (24px) + height (~44px) + gap (24px) = ~92px
+      // Using 88px for tighter, cleaner spacing
+      const mobileGap = 88; // Matches the visual gap above navbar for symmetry
       gsap.set(sticky, { top: `${mobileGap}px` });
     });
 
@@ -307,13 +308,9 @@ export const HeroScroll = () => {
       className="relative w-full"
       style={{ height: "300vh" }}
     >
-      {/* Spacer to maintain gap from navbar - Perfect symmetry: 24px gap above = 24px gap below */}
-      {/* Mobile: 24px (top gap) + ~56px (navbar height) + 24px (bottom gap) = 104px */}
-      <div className="h-[104px] md:h-[120px] w-full" />
-      
       <div
         ref={stickyRef}
-        className="sticky top-[104px] md:top-[120px] w-full md:h-screen overflow-hidden relative"
+        className="sticky top-[88px] lg:top-[120px] w-full md:h-screen overflow-hidden relative"
         style={{ 
           paddingLeft: "1rem",
           paddingRight: "1rem",
