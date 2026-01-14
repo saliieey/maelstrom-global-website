@@ -174,9 +174,8 @@ export const HeroScroll = () => {
         autoAlpha: 0,
       });
 
-      // Calculate gap for desktop: 24px (top gap) + ~56px (navbar height) + 24px (bottom gap) = 104px
-      // Desktop uses slightly more space for better visual balance
-      const gap = 120;
+      // Calculate gap for desktop: Navbar at top-6 (24px) + navbar height (48px) + gap (24px to match top gap) = 96px
+      const gap = 96;
       
       // Pin the sticky container - start pinning when container reaches gap position
       ScrollTrigger.create({
@@ -310,7 +309,7 @@ export const HeroScroll = () => {
     >
       <div
         ref={stickyRef}
-        className="sticky top-[88px] lg:top-[120px] w-full md:h-screen overflow-hidden relative"
+        className="sticky top-[88px] lg:top-[96px] w-full md:h-screen overflow-hidden relative"
         style={{ 
           paddingLeft: "1rem",
           paddingRight: "1rem",
