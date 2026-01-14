@@ -76,14 +76,26 @@ export const TextReveal = () => {
         anticipatePin: 1,
         invalidateOnRefresh: true,
         onEnter: () => {
-          gsap.set(sticky, { top: `${gap}px`, willChange: "transform" });
+          // Set exact height for perfect centering (viewport minus navbar gap)
+          gsap.set(sticky, { 
+            top: `${gap}px`, 
+            height: `calc(100vh - ${gap}px)`,
+            minHeight: `calc(100vh - ${gap}px)`,
+            willChange: "transform" 
+          });
           // Ensure black background stays solid
           if (backgroundRef.current) {
             gsap.set(backgroundRef.current, { opacity: 1 });
           }
         },
         onEnterBack: () => {
-          gsap.set(sticky, { top: `${gap}px`, willChange: "transform" });
+          // Set exact height for perfect centering (viewport minus navbar gap)
+          gsap.set(sticky, { 
+            top: `${gap}px`, 
+            height: `calc(100vh - ${gap}px)`,
+            minHeight: `calc(100vh - ${gap}px)`,
+            willChange: "transform" 
+          });
           // Ensure black background stays solid
           if (backgroundRef.current) {
             gsap.set(backgroundRef.current, { opacity: 1 });
@@ -97,10 +109,13 @@ export const TextReveal = () => {
           });
         },
         onLeaveBack: () => {
+          // Set exact height for perfect centering when scrolling back
           gsap.set(sticky, {
             willChange: "auto",
             position: "sticky",
             top: `${gap}px`,
+            height: `calc(100vh - ${gap}px)`,
+            minHeight: `calc(100vh - ${gap}px)`,
           });
           // Ensure black background stays solid when scrolling back
           if (backgroundRef.current) {
@@ -159,14 +174,26 @@ export const TextReveal = () => {
         anticipatePin: 1,
         invalidateOnRefresh: true,
         onEnter: () => {
-          gsap.set(sticky, { top: `${gap}px`, willChange: "transform" });
+          // Set exact height for perfect centering (viewport minus navbar gap)
+          gsap.set(sticky, { 
+            top: `${gap}px`, 
+            height: `calc(100vh - ${gap}px)`,
+            minHeight: `calc(100vh - ${gap}px)`,
+            willChange: "transform" 
+          });
           // Ensure black background stays solid
           if (backgroundRef.current) {
             gsap.set(backgroundRef.current, { opacity: 1 });
           }
         },
         onEnterBack: () => {
-          gsap.set(sticky, { top: `${gap}px`, willChange: "transform" });
+          // Set exact height for perfect centering (viewport minus navbar gap)
+          gsap.set(sticky, { 
+            top: `${gap}px`, 
+            height: `calc(100vh - ${gap}px)`,
+            minHeight: `calc(100vh - ${gap}px)`,
+            willChange: "transform" 
+          });
           // Ensure black background stays solid
           if (backgroundRef.current) {
             gsap.set(backgroundRef.current, { opacity: 1 });
@@ -254,18 +281,26 @@ export const TextReveal = () => {
       />
       <div
         ref={stickyRef}
-        className="sticky top-[88px] lg:top-[96px] w-full min-h-screen flex items-center justify-center px-4 md:px-6 lg:px-8 z-10 relative"
+        className="sticky top-[88px] lg:top-[96px] w-full flex items-center justify-center px-4 md:px-6 lg:px-8 z-10 relative"
         style={{
+          height: "calc(100vh - 88px)", // Mobile: viewport height minus navbar (88px)
+          minHeight: "calc(100vh - 88px)",
           willChange: "transform",
           isolation: "isolate",
         }}
       >
+        {/* Perfect vertical and horizontal centering - text container */}
         <div
           ref={textRef}
-          className="text-center max-w-7xl mx-auto"
+          className="text-center max-w-7xl mx-auto w-full"
           style={{
             fontFamily: "var(--font-geist-sans), Arial, Helvetica, sans-serif",
             opacity: 1, // Text stays visible - no fade
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            minHeight: "100%", // Take full height for perfect vertical centering
           }}
         >
           <p className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight md:leading-tight">
