@@ -9,6 +9,7 @@
 
 import { HeroScroll } from "@/sections/HeroScroll";
 import { TextReveal } from "@/sections/TextReveal";
+import { PortfolioGrid } from "@/sections/PortfolioGrid";
 
 export default function Home() {
   return (
@@ -19,8 +20,15 @@ export default function Home() {
       </div>
       
       {/* Text Reveal Section - Read Along Effect - Starts after hero with proper gap */}
-      <div className="relative z-10 -mt-0">
+      {/* Lower z-index - will be covered by PortfolioGrid sliding up */}
+      <div className="relative z-0">
         <TextReveal />
+      </div>
+      
+      {/* Portfolio Grid Section - Bento Grid Layouts - Slides UP over TextReveal like a curtain */}
+      {/* Higher z-index with solid background - covers TextReveal as it slides up */}
+      <div className="relative z-10">
+        <PortfolioGrid />
       </div>
       
       {/* Next Section - Flows naturally below hero with proper spacing */}

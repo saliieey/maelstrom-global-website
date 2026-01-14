@@ -19,6 +19,7 @@ export const TextReveal = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const stickyRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
+  const backgroundRef = useRef<HTMLDivElement>(null);
   const wordsRef = useRef<HTMLSpanElement[]>([]);
 
   const text =
@@ -65,22 +66,31 @@ export const TextReveal = () => {
       // Calculate gap for navbar
       const gap = 96;
 
-      // Pin the sticky container during scroll
+      // Pin the sticky container during scroll - STAYS SOLID BLACK until animation completes
       ScrollTrigger.create({
         trigger: container,
         start: `top-=${gap} top`,
-        end: "+=300%",
+        end: "+=200%", // 2x viewport height - enough scroll time to finish reading
         pin: sticky,
         pinSpacing: true,
         anticipatePin: 1,
         invalidateOnRefresh: true,
         onEnter: () => {
           gsap.set(sticky, { top: `${gap}px`, willChange: "transform" });
+          // Ensure black background stays solid
+          if (backgroundRef.current) {
+            gsap.set(backgroundRef.current, { opacity: 1 });
+          }
         },
         onEnterBack: () => {
           gsap.set(sticky, { top: `${gap}px`, willChange: "transform" });
+          // Ensure black background stays solid
+          if (backgroundRef.current) {
+            gsap.set(backgroundRef.current, { opacity: 1 });
+          }
         },
         onLeave: () => {
+          // Pin releases - section scrolls away, revealing PortfolioGrid underneath
           gsap.set(sticky, {
             willChange: "auto",
             clearProps: "transform",
@@ -92,6 +102,10 @@ export const TextReveal = () => {
             position: "sticky",
             top: `${gap}px`,
           });
+          // Ensure black background stays solid when scrolling back
+          if (backgroundRef.current) {
+            gsap.set(backgroundRef.current, { opacity: 1 });
+          }
         },
       });
 
@@ -100,14 +114,15 @@ export const TextReveal = () => {
         scrollTrigger: {
           trigger: container,
           start: `top-=${gap} top`,
-          end: "+=300%",
+          end: "+=200%", // Match pin end - ensures animation completes before pin releases
           scrub: 1, // Smooth scrubbing
           anticipatePin: 1,
           invalidateOnRefresh: true,
         },
       });
 
-      // Animate words from dim (unread) to bright (read) with stagger
+      // Animate words from dim (unread) to bright orange (read) with stagger
+      // Animation completes at 100% before pin releases
       tl.to(
         wordSpans,
         {
@@ -116,7 +131,7 @@ export const TextReveal = () => {
           ease: "none",
           force3D: true,
           stagger: {
-            amount: 1.5, // Total duration of stagger
+            amount: 1.5, // Total duration of stagger - completes before pin releases
             from: "start", // Start from beginning
           },
         },
@@ -134,22 +149,31 @@ export const TextReveal = () => {
 
       const gap = 88;
 
-      // Pin the sticky container
+      // Pin the sticky container - STAYS SOLID BLACK until animation completes
       ScrollTrigger.create({
         trigger: container,
         start: `top-=${gap} top`,
-        end: "+=250%",
+        end: "+=200%", // 2x viewport height - enough scroll time to finish reading
         pin: sticky,
         pinSpacing: true,
         anticipatePin: 1,
         invalidateOnRefresh: true,
         onEnter: () => {
           gsap.set(sticky, { top: `${gap}px`, willChange: "transform" });
+          // Ensure black background stays solid
+          if (backgroundRef.current) {
+            gsap.set(backgroundRef.current, { opacity: 1 });
+          }
         },
         onEnterBack: () => {
           gsap.set(sticky, { top: `${gap}px`, willChange: "transform" });
+          // Ensure black background stays solid
+          if (backgroundRef.current) {
+            gsap.set(backgroundRef.current, { opacity: 1 });
+          }
         },
         onLeave: () => {
+          // Pin releases - section scrolls away, revealing PortfolioGrid underneath
           gsap.set(sticky, {
             willChange: "auto",
             clearProps: "transform",
@@ -161,6 +185,10 @@ export const TextReveal = () => {
             position: "sticky",
             top: `${gap}px`,
           });
+          // Ensure black background stays solid when scrolling back
+          if (backgroundRef.current) {
+            gsap.set(backgroundRef.current, { opacity: 1 });
+          }
         },
       });
 
@@ -169,7 +197,7 @@ export const TextReveal = () => {
         scrollTrigger: {
           trigger: container,
           start: `top-=${gap} top`,
-          end: "+=250%",
+          end: "+=200%", // Match pin end - ensures animation completes before pin releases
           scrub: 1,
           anticipatePin: 1,
           invalidateOnRefresh: true,
@@ -177,6 +205,7 @@ export const TextReveal = () => {
       });
 
       // Animate words with faster stagger for mobile
+      // Animation completes at 100% before pin releases
       tl.to(
         wordSpans,
         {
@@ -185,7 +214,7 @@ export const TextReveal = () => {
           ease: "none",
           force3D: true,
           stagger: {
-            amount: 1.2,
+            amount: 1.2, // Total duration - completes before pin releases
             from: "start",
           },
         },
@@ -208,15 +237,24 @@ export const TextReveal = () => {
   return (
     <div
       ref={containerRef}
-      className="relative w-full bg-black md:mt-[300px]"
+      className="relative w-full md:mt-[300px] bg-black z-0"
       style={{ 
-        height: "300vh",
+        height: "300vh", // Container height matches scroll distance (200% + viewport)
+        minHeight: "300vh",
         marginTop: "0px", // No gap on mobile - flows directly after hero section
       }}
     >
+      {/* Solid black background - stays opaque until pin releases */}
+      <div
+        ref={backgroundRef}
+        className="absolute inset-0 bg-black z-0"
+        style={{
+          opacity: 1, // Always solid black - no fade
+        }}
+      />
       <div
         ref={stickyRef}
-        className="sticky top-[88px] lg:top-[96px] w-full min-h-screen flex items-center justify-center px-4 md:px-6 lg:px-8"
+        className="sticky top-[88px] lg:top-[96px] w-full min-h-screen flex items-center justify-center px-4 md:px-6 lg:px-8 z-10 relative"
         style={{
           willChange: "transform",
           isolation: "isolate",
@@ -227,6 +265,7 @@ export const TextReveal = () => {
           className="text-center max-w-7xl mx-auto"
           style={{
             fontFamily: "var(--font-geist-sans), Arial, Helvetica, sans-serif",
+            opacity: 1, // Text stays visible - no fade
           }}
         >
           <p className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight md:leading-tight">
