@@ -8,14 +8,23 @@
 // export const revalidate = 0;
 
 import { HeroScroll } from "@/sections/HeroScroll";
+import { TextReveal } from "@/sections/TextReveal";
 
 export default function Home() {
   return (
-    <main className="min-h-screen">
-      <HeroScroll />
+    <main className="min-h-screen relative">
+      {/* Hero Section - Video and Text as Single Cohesive Section */}
+      <div className="relative z-0">
+        <HeroScroll />
+      </div>
       
-      {/* Dummy content for scroll testing */}
-      <section className="py-20 px-4">
+      {/* Text Reveal Section - Read Along Effect - Starts after hero with proper gap */}
+      <div className="relative z-10 -mt-0">
+        <TextReveal />
+      </div>
+      
+      {/* Next Section - Flows naturally below hero with proper spacing */}
+      <section className="pt-24 pb-20 px-4 md:pt-32 md:pb-24 relative z-20 bg-transparent">
         <div className="container mx-auto space-y-16">
           {[...Array(6)].map((_, i) => (
             <div 

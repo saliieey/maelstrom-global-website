@@ -11,6 +11,7 @@ export const HeroScroll = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const leftContentRef = useRef<HTMLDivElement>(null);
   const rightContentRef = useRef<HTMLDivElement>(null);
+  const resizeHandlerRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     // Register ScrollTrigger plugin only on client side
@@ -35,62 +36,105 @@ export const HeroScroll = () => {
 
     // Tablet (768px - 1023px) - Similar to desktop but with reduced sizes
     mm.add("(min-width: 768px) and (max-width: 1023px)", () => {
-      // Set initial state: video wrapper full screen, centered
+      // Calculate gap for tablet: Matches top gap (24px) for symmetry
+      const gap = 88;
+      
+      // Calculate viewport height minus navbar gap to ensure full video visibility
+      const viewportHeight = window.innerHeight;
+      const availableHeight = viewportHeight - gap;
+      
+      // Set initial state: video wrapper centered vertically (Mastercard style)
       gsap.set(videoWrapper, {
         width: "100%",
-        height: "100%",
+        height: `${availableHeight}px`,
         borderRadius: "20px",
         position: "absolute",
-        top: 0,
+        top: "50%", // Center vertically
         left: "50%",
         xPercent: -50,
+        yPercent: -50, // Center vertically
         overflow: "hidden",
         scale: 1,
       });
 
-      // Set initial state for text content - smaller widths for tablet
+      // Set initial state for text content - starts from below, animates up to center position beside video card
       gsap.set(leftContent, {
         position: "absolute",
         left: "3%",
-        top: "50%",
+        top: "50%", // Center vertically with video card
+        yPercent: -50, // Center vertically (like video card)
         width: "25%",
         maxWidth: "300px",
         zIndex: 10,
-        yPercent: -50,
-        y: 200,
+        y: 200, // Start from below (positive y moves down from center)
         autoAlpha: 0,
       });
 
       gsap.set(rightContent, {
         position: "absolute",
         right: "3%",
-        top: "50%",
+        top: "50%", // Center vertically with video card
+        yPercent: -50, // Center vertically (like video card)
         width: "25%",
         maxWidth: "300px",
         zIndex: 10,
-        yPercent: -50,
-        y: 200,
+        y: 200, // Start from below (positive y moves down from center)
         autoAlpha: 0,
       });
-
-      // Calculate gap for tablet: Matches top gap (24px) for symmetry
-      // Navbar at top-6 (24px) + navbar height (~48px) + gap (24px) = ~96px, using 88px for tighter fit
-      const gap = 88;
       
-      // Pin the sticky container
+      // Increased scroll distance to ensure animation completes fully before next section
+      // Extended significantly to give proper hold time after text reaches center
+      const scrollDistance = "+=300%";
+      
+      // Create timeline for smooth animation FIRST
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: container,
+          start: `top-=${gap} top`,
+          end: scrollDistance,
+          scrub: 1,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+        },
+      });
+
+      // Pin the sticky container - AFTER timeline
       ScrollTrigger.create({
         trigger: container,
         start: `top-=${gap} top`,
-        end: "+=300%",
+        end: scrollDistance,
         pin: sticky,
         pinSpacing: true,
-        scrub: true,
         anticipatePin: 1,
+        invalidateOnRefresh: true,
         onEnter: () => {
-          gsap.set(sticky, { top: `${gap}px` });
+          gsap.set(sticky, { top: `${gap}px`, willChange: "transform" });
         },
         onEnterBack: () => {
-          gsap.set(sticky, { top: `${gap}px` });
+          gsap.set(sticky, { top: `${gap}px`, willChange: "transform" });
+        },
+        onLeave: () => {
+          // Smooth transition when leaving pinned state - lock final states
+          gsap.set(sticky, { 
+            willChange: "auto",
+            clearProps: "transform"
+          });
+          // Lock final states for video and text
+          gsap.set([leftContent, rightContent], {
+            autoAlpha: 1,
+            y: 0,
+            clearProps: "willChange"
+          });
+          gsap.set(videoWrapper, {
+            clearProps: "willChange"
+          });
+        },
+        onLeaveBack: () => {
+          gsap.set(sticky, { 
+            willChange: "auto",
+            position: "sticky",
+            top: `${gap}px`
+          });
         },
         onUpdate: (self) => {
           if (self.isActive) {
@@ -99,141 +143,231 @@ export const HeroScroll = () => {
         },
       });
 
-      // Create timeline for smooth animation
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: container,
-          start: `top-=${gap} top`,
-          end: "+=300%",
-          scrub: true,
-        },
-      });
-
-      // Step 1: Shrink video wrapper - smaller scale for tablet (40% instead of 31.67%)
+      // Step 1: Shrink video wrapper - smaller scale for tablet (40%)
+      // Video shrinks first, completes around 50% of scroll
       tl.to(videoWrapper, {
         scale: 0.4,
         borderRadius: "24px",
         left: "50%",
         xPercent: -50,
+        yPercent: -50,
+        top: "50%",
         ease: "none",
+        force3D: true,
+        willChange: "transform",
+        duration: 0.5, // Video animation completes at 50% of timeline
       }, 0);
 
-      // Step 2: Reveal text content (left and right simultaneously)
+      // Ensure final state is locked at the end to prevent jump
+      tl.call(() => {
+        gsap.set(videoWrapper, { clearProps: "willChange" });
+      }, undefined, 1);
+
+      // Step 2: Reveal text content - animate from below to center position beside video card
+      // Text animation starts after video finishes shrinking (45%) and completes at 65% of scroll
+      // Then holds from 65% to 90% before next section starts
       tl.to(leftContent, {
         autoAlpha: 1,
-        y: 0,
-        ease: "none",
-      }, 0.3);
+        y: 0, // Move up to exact center position (from y: 200) - centered vertically with video card
+        ease: "none", // Smooth scrubbing tied to scroll
+        force3D: true,
+        duration: 0.2, // Text animation completes at 65% (45% + 20%)
+      }, 0.45); // Start at 45% - slightly before video fully completes for smoother transition
 
       tl.to(rightContent, {
         autoAlpha: 1,
+        y: 0, // Move up to exact center position (from y: 200) - centered vertically with video card
+        ease: "none", // Smooth scrubbing tied to scroll
+        force3D: true,
+        duration: 0.2, // Text animation completes at 65% (45% + 20%)
+      }, 0.45); // Start at 45% - slightly before video fully completes for smoother transition
+      
+      // Lock final position at 65% - ensures text is completely centered beside video card
+      // Text animation completes at 65% (45% start + 20% duration)
+      // Hold from 65% to 90% (25% of scroll) before allowing next section to start
+      tl.set([leftContent, rightContent], {
         y: 0,
-        ease: "none",
-      }, 0.3);
+        autoAlpha: 1,
+      }, 0.65); // Lock final position - text fully reached at exact center beside video card
+      
+      // Maintain hold state from 65% to 90% - ensures hero section is completely finished
+      tl.to([leftContent, rightContent], {
+        y: 0,
+        autoAlpha: 1,
+        duration: 0.25, // Hold for 25% of scroll (65% to 90%)
+      }, 0.65);
     });
 
     // Desktop (>= 1024px) - Full desktop experience
     mm.add("(min-width: 1024px)", () => {
-      // Set initial state: video wrapper full screen, centered
-      // borderRadius is set in inline style - ensure it's visible
+      // Calculate gap for desktop: Navbar at top-6 (24px) + navbar height (48px) + gap (24px) = 96px
+      const gap = 96;
+      
+      // Calculate viewport height minus navbar gap to ensure full video visibility
+      const viewportHeight = window.innerHeight;
+      const availableHeight = viewportHeight - gap;
+      
+      // Set initial state: video wrapper centered vertically in viewport (Mastercard style)
       gsap.set(videoWrapper, {
         width: "100%",
-        height: "100%",
+        height: `${availableHeight}px`,
         borderRadius: "20px",
         position: "absolute",
-        top: 0,
+        top: "50%", // Center vertically
         left: "50%",
         xPercent: -50,
+        yPercent: -50, // Center vertically
         overflow: "hidden",
         scale: 1,
-        // Removed clipPath to ensure borderRadius is visible from start
       });
 
-      // Set initial state for text content
+      // Set initial state for text content - starts from below, animates up to center position beside video card
       gsap.set(leftContent, {
         position: "absolute",
         left: "5%",
-        top: "50%",
+        top: "50%", // Center vertically with video card
+        yPercent: -50, // Center vertically (like video card)
         width: "28%",
         maxWidth: "400px",
         zIndex: 10,
-        yPercent: -50,
-        y: 200,
+        y: 250, // Start from below (positive y moves down from center)
         autoAlpha: 0,
       });
 
       gsap.set(rightContent, {
         position: "absolute",
         right: "5%",
-        top: "50%",
+        top: "50%", // Center vertically with video card
+        yPercent: -50, // Center vertically (like video card)
         width: "28%",
         maxWidth: "400px",
         zIndex: 10,
-        yPercent: -50,
-        y: 200,
+        y: 250, // Start from below (positive y moves down from center)
         autoAlpha: 0,
       });
 
-      // Calculate gap for desktop: Navbar at top-6 (24px) + navbar height (48px) + gap (24px to match top gap) = 96px
-      const gap = 96;
+      // Increased scroll distance to ensure animation completes fully before next section
+      // Extended significantly to give proper hold time after text reaches center
+      const scrollDistance = "+=300%";
       
-      // Pin the sticky container - start pinning when container reaches gap position
+      // Update video height on resize to maintain proper fit
+      const updateVideoHeight = () => {
+        const newViewportHeight = window.innerHeight;
+        const newAvailableHeight = newViewportHeight - gap;
+        gsap.set(videoWrapper, {
+          height: `${newAvailableHeight}px`,
+        });
+        ScrollTrigger.refresh();
+      };
+      
+      const resizeHandler = () => updateVideoHeight();
+      resizeHandlerRef.current = resizeHandler;
+      window.addEventListener("resize", resizeHandler);
+      
+      // Create timeline for smooth animation FIRST (before pinning)
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: container,
+          start: `top-=${gap} top`,
+          end: scrollDistance,
+          scrub: 1, // Smooth scrubbing with slight delay for better performance
+          anticipatePin: 1,
+          invalidateOnRefresh: true, // Recalculate on resize
+        },
+      });
+
+      // Pin the sticky container during animation - AFTER timeline to avoid conflicts
       ScrollTrigger.create({
         trigger: container,
         start: `top-=${gap} top`,
-        end: "+=300%",
+        end: scrollDistance,
         pin: sticky,
         pinSpacing: true,
-        scrub: true,
         anticipatePin: 1,
+        invalidateOnRefresh: true,
         onEnter: () => {
-          // Maintain gap when entering pinned state
-          gsap.set(sticky, { top: `${gap}px` });
+          gsap.set(sticky, { top: `${gap}px`, willChange: "transform" });
         },
         onEnterBack: () => {
-          // Maintain gap when re-entering pinned state  
-          gsap.set(sticky, { top: `${gap}px` });
+          gsap.set(sticky, { top: `${gap}px`, willChange: "transform" });
+        },
+        onLeave: () => {
+          // Smooth transition when leaving pinned state - ensure final state is set
+          // Keep sticky positioning but remove transform to prevent jump
+          gsap.set(sticky, { 
+            willChange: "auto",
+            clearProps: "transform"
+          });
+        },
+        onLeaveBack: () => {
+          gsap.set(sticky, { 
+            willChange: "auto",
+            position: "sticky",
+            top: `${gap}px`
+          });
         },
         onUpdate: (self) => {
-          // Continuously maintain gap during scroll
           if (self.isActive) {
             gsap.set(sticky, { top: `${gap}px` });
           }
         },
       });
 
-      // Create timeline for smooth animation
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: container,
-          start: `top-=${gap} top`,
-          end: "+=300%",
-          scrub: true,
-        },
-      });
-
-      // Step 1: Shrink video wrapper using scale and clip-path (exact Mastercard values)
+      // Step 1: Shrink video wrapper and position it in center - smooth animation
+      // Video shrinks first, completes around 50% of scroll
       tl.to(videoWrapper, {
         scale: 0.316703,
         clipPath: "inset(12px 153.718px round 26px)",
         borderRadius: "26px",
         left: "50%",
         xPercent: -50,
+        yPercent: -50,
+        top: "50%",
         ease: "none",
+        force3D: true, // Use GPU acceleration for smoother animation
+        willChange: "transform, clip-path",
+        duration: 0.5, // Video animation completes at 50% of timeline
       }, 0);
 
-      // Step 3: Reveal text content (left and right simultaneously)
+      // Ensure final state is locked at the end to prevent jump
+      tl.call(() => {
+        // Lock final positions to prevent any jump when pinning ends
+        gsap.set(videoWrapper, { clearProps: "willChange" });
+      }, undefined, 1);
+
+      // Step 2: Reveal text content - animate from below to center position beside video card
+      // Text animation starts after video finishes shrinking (45%) and completes at 65% of scroll
+      // Then holds from 65% to 90% before next section starts
       tl.to(leftContent, {
         autoAlpha: 1,
-        y: 0,
-        ease: "none",
-      }, 0.3);
+        y: 0, // Move up to exact center position (from y: 200) - centered vertically with video card
+        ease: "none", // Smooth scrubbing tied to scroll
+        force3D: true,
+        duration: 0.2, // Text animation completes at 65% (45% + 20%)
+      }, 0.45); // Start at 45% - slightly before video fully completes for smoother transition
 
       tl.to(rightContent, {
         autoAlpha: 1,
+        y: 0, // Move up to exact center position (from y: 200) - centered vertically with video card
+        ease: "none", // Smooth scrubbing tied to scroll
+        force3D: true,
+        duration: 0.2, // Text animation completes at 65% (45% + 20%)
+      }, 0.45); // Start at 45% - slightly before video fully completes for smoother transition
+      
+      // Lock final position at 65% - ensures text is completely centered beside video card
+      // Text animation completes at 65% (45% start + 20% duration)
+      // Hold from 65% to 90% (25% of scroll) before allowing next section to start
+      tl.set([leftContent, rightContent], {
         y: 0,
-        ease: "none",
-      }, 0.3);
+        autoAlpha: 1,
+      }, 0.65); // Lock final position - text fully reached at exact center beside video card
+      
+      // Maintain hold state from 65% to 90% - ensures hero section is completely finished
+      tl.to([leftContent, rightContent], {
+        y: 0,
+        autoAlpha: 1,
+        duration: 0.25, // Hold for 25% of scroll (65% to 90%)
+      }, 0.65);
     });
 
     // Mobile (< 768px) - Static layout like Mastercard (no scroll animation)
@@ -294,8 +428,15 @@ export const HeroScroll = () => {
       gsap.set(sticky, { top: `${mobileGap}px` });
     });
 
+    // Refresh ScrollTrigger after setup to ensure proper calculations
+    ScrollTrigger.refresh();
+
     // Cleanup on unmount
     return () => {
+      // Remove resize listener if it exists
+      if (resizeHandlerRef.current) {
+        window.removeEventListener("resize", resizeHandlerRef.current);
+      }
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
       mm.revert();
     };
@@ -304,16 +445,20 @@ export const HeroScroll = () => {
   return (
     <div
       ref={containerRef}
-      className="relative w-full"
-      style={{ height: "300vh" }}
+      className="relative w-full bg-transparent h-auto md:h-[300vh] md:min-h-[300vh]"
     >
       <div
         ref={stickyRef}
-        className="sticky top-[88px] lg:top-[96px] w-full md:h-screen overflow-hidden relative"
+        className="sticky top-[88px] lg:top-[96px] w-full overflow-visible relative z-0"
         style={{ 
           paddingLeft: "1rem",
           paddingRight: "1rem",
-          minHeight: "auto",
+          height: "calc(100vh - 96px)", // Account for navbar gap on desktop
+          minHeight: "calc(100vh - 96px)",
+          paddingBottom: "180px", // Increased bottom padding for text at bottom + gap (Mastercard style)
+          willChange: "transform", // Optimize for smooth scrolling
+          isolation: "isolate", // Create new stacking context
+          pointerEvents: "auto", // Ensure proper interaction
         }}
       >
         {/* Video Wrapper - This is what we animate - Mobile: w-[90vw] to match navbar */}
@@ -322,6 +467,7 @@ export const HeroScroll = () => {
           className="w-[90vw] md:w-full md:h-full overflow-hidden mx-auto md:mx-0"
           style={{ 
             borderRadius: "20px",
+            willChange: "transform, clip-path", // Optimize for smooth animation
           }}
         >
           {/* Video Element - Always maintains aspect ratio */}
@@ -386,6 +532,15 @@ export const HeroScroll = () => {
           </div>
         </div>
       </div>
+      
+      {/* Spacer at the end for proper gap before next section - Mastercard style spacing */}
+      <div 
+        className="w-full bg-transparent md:h-[600px] md:min-h-[600px]"
+        style={{
+          height: "40px", // Minimal gap for mobile - professional spacing
+          minHeight: "40px",
+        }}
+      />
     </div>
   );
 };
