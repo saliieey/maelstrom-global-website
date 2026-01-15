@@ -20,6 +20,7 @@ export const TextReveal = () => {
   const stickyRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
   const backgroundRef = useRef<HTMLDivElement>(null);
+  const containerBackgroundRef = useRef<HTMLDivElement>(null);
   const wordsRef = useRef<HTMLSpanElement[]>([]);
 
   const text =
@@ -66,11 +67,11 @@ export const TextReveal = () => {
       // Calculate gap for navbar
       const gap = 96;
 
-      // Pin the sticky container during scroll - STAYS SOLID BLACK until animation completes
+      // Pin the sticky container during scroll - STAYS SOLID BLACK until text fully reveals
       ScrollTrigger.create({
         trigger: container,
         start: `top-=${gap} top`,
-        end: "+=200%", // 2x viewport height - enough scroll time to finish reading
+        end: "+=350%", // 3.5x viewport height - ensures text fully reveals with proper hold period
         pin: sticky,
         pinSpacing: true,
         anticipatePin: 1,
@@ -87,6 +88,9 @@ export const TextReveal = () => {
           if (backgroundRef.current) {
             gsap.set(backgroundRef.current, { opacity: 1 });
           }
+          if (containerBackgroundRef.current) {
+            gsap.set(containerBackgroundRef.current, { opacity: 1 });
+          }
         },
         onEnterBack: () => {
           // Set exact height for perfect centering (viewport minus navbar gap)
@@ -100,13 +104,18 @@ export const TextReveal = () => {
           if (backgroundRef.current) {
             gsap.set(backgroundRef.current, { opacity: 1 });
           }
+          if (containerBackgroundRef.current) {
+            gsap.set(containerBackgroundRef.current, { opacity: 1 });
+          }
         },
         onLeave: () => {
-          // Pin releases - section scrolls away, revealing PortfolioGrid underneath
+          // Pin releases - section scrolls away naturally, revealing PortfolioGrid underneath
+          // Black background stays visible until pin releases, then scrolls away with section
           gsap.set(sticky, {
             willChange: "auto",
             clearProps: "transform",
           });
+          // Keep backgrounds visible - they scroll away naturally with the section
         },
         onLeaveBack: () => {
           // Set exact height for perfect centering when scrolling back
@@ -121,6 +130,9 @@ export const TextReveal = () => {
           if (backgroundRef.current) {
             gsap.set(backgroundRef.current, { opacity: 1 });
           }
+          if (containerBackgroundRef.current) {
+            gsap.set(containerBackgroundRef.current, { opacity: 1 });
+          }
         },
       });
 
@@ -129,7 +141,7 @@ export const TextReveal = () => {
         scrollTrigger: {
           trigger: container,
           start: `top-=${gap} top`,
-          end: "+=200%", // Match pin end - ensures animation completes before pin releases
+          end: "+=350%", // Match pin end - ensures animation completes with proper hold period
           scrub: 1, // Smooth scrubbing
           anticipatePin: 1,
           invalidateOnRefresh: true,
@@ -137,7 +149,7 @@ export const TextReveal = () => {
       });
 
       // Animate words from dim (unread) to bright orange (read) with stagger
-      // Animation completes at 100% before pin releases
+      // Animation completes at ~75% of timeline, leaving 25% hold period before next section
       tl.to(
         wordSpans,
         {
@@ -146,12 +158,16 @@ export const TextReveal = () => {
           ease: "none",
           force3D: true,
           stagger: {
-            amount: 1.5, // Total duration of stagger - completes before pin releases
+            amount: 2.6, // Ensures ALL words fully reveal including the last word - completes at ~75% of timeline
             from: "start", // Start from beginning
           },
         },
         0
       );
+
+      // Black background stays solid throughout entire pin duration
+      // No fade-out - background remains visible until pin releases
+      // When pin releases (onLeave), next section appears underneath
     });
 
     // Mobile (< 768px) - Simplified animation
@@ -164,11 +180,11 @@ export const TextReveal = () => {
 
       const gap = 88;
 
-      // Pin the sticky container - STAYS SOLID BLACK until animation completes
+      // Pin the sticky container - STAYS SOLID BLACK until text fully reveals
       ScrollTrigger.create({
         trigger: container,
         start: `top-=${gap} top`,
-        end: "+=200%", // 2x viewport height - enough scroll time to finish reading
+        end: "+=400%", // 4x viewport height - ensures text fully reveals with proper hold period on mobile
         pin: sticky,
         pinSpacing: true,
         anticipatePin: 1,
@@ -185,6 +201,9 @@ export const TextReveal = () => {
           if (backgroundRef.current) {
             gsap.set(backgroundRef.current, { opacity: 1 });
           }
+          if (containerBackgroundRef.current) {
+            gsap.set(containerBackgroundRef.current, { opacity: 1 });
+          }
         },
         onEnterBack: () => {
           // Set exact height for perfect centering (viewport minus navbar gap)
@@ -198,13 +217,18 @@ export const TextReveal = () => {
           if (backgroundRef.current) {
             gsap.set(backgroundRef.current, { opacity: 1 });
           }
+          if (containerBackgroundRef.current) {
+            gsap.set(containerBackgroundRef.current, { opacity: 1 });
+          }
         },
         onLeave: () => {
-          // Pin releases - section scrolls away, revealing PortfolioGrid underneath
+          // Pin releases - section scrolls away naturally, revealing PortfolioGrid underneath
+          // Black background stays visible until pin releases, then scrolls away with section
           gsap.set(sticky, {
             willChange: "auto",
             clearProps: "transform",
           });
+          // Keep backgrounds visible - they scroll away naturally with the section
         },
         onLeaveBack: () => {
           gsap.set(sticky, {
@@ -216,6 +240,9 @@ export const TextReveal = () => {
           if (backgroundRef.current) {
             gsap.set(backgroundRef.current, { opacity: 1 });
           }
+          if (containerBackgroundRef.current) {
+            gsap.set(containerBackgroundRef.current, { opacity: 1 });
+          }
         },
       });
 
@@ -224,15 +251,15 @@ export const TextReveal = () => {
         scrollTrigger: {
           trigger: container,
           start: `top-=${gap} top`,
-          end: "+=200%", // Match pin end - ensures animation completes before pin releases
+          end: "+=400%", // Match pin end - ensures animation completes with proper hold period on mobile
           scrub: 1,
           anticipatePin: 1,
           invalidateOnRefresh: true,
         },
       });
 
-      // Animate words with faster stagger for mobile
-      // Animation completes at 100% before pin releases
+      // Animate words with stagger for mobile
+      // Animation completes at ~70% of timeline, leaving 30% hold period before next section
       tl.to(
         wordSpans,
         {
@@ -241,12 +268,16 @@ export const TextReveal = () => {
           ease: "none",
           force3D: true,
           stagger: {
-            amount: 1.2, // Total duration - completes before pin releases
+            amount: 2.8, // Increased for mobile - ensures ALL words fully reveal including the last word - completes at ~70% of timeline
             from: "start",
           },
         },
         0
       );
+
+      // Black background stays solid throughout entire pin duration
+      // No fade-out - background remains visible until pin releases
+      // When pin releases (onLeave), next section appears underneath
     });
 
       // Refresh ScrollTrigger after setup
@@ -264,13 +295,21 @@ export const TextReveal = () => {
   return (
     <div
       ref={containerRef}
-      className="relative w-full md:mt-[300px] bg-black z-0"
+      className="relative w-full md:mt-[300px] z-0"
       style={{ 
-        height: "300vh", // Container height matches scroll distance (200% + viewport)
-        minHeight: "300vh",
+        height: "400vh", // Container height matches mobile pin duration (400% = 4 viewport heights) - desktop works fine with extra space
+        minHeight: "400vh",
         marginTop: "0px", // No gap on mobile - flows directly after hero section
       }}
     >
+      {/* Container black background - fades out with animation */}
+      <div
+        ref={containerBackgroundRef}
+        className="absolute inset-0 bg-black z-0"
+        style={{
+          opacity: 1,
+        }}
+      />
       {/* Solid black background - stays opaque until pin releases */}
       <div
         ref={backgroundRef}
