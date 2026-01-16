@@ -11,6 +11,7 @@ import { HeroScroll } from "@/sections/HeroScroll";
 import { TextReveal } from "@/sections/TextReveal";
 import { PortfolioGrid } from "@/sections/PortfolioGrid";
 import { ServicesExpandable } from "@/sections/ServicesExpandable";
+import { StatsScroll } from "@/sections/StatsScroll";
 
 export default function Home() {
   return (
@@ -35,6 +36,11 @@ export default function Home() {
       {/* Services Expandable Section - Expandable service cards with slide-up overlay */}
       <div className="relative z-20">
         <ServicesExpandable />
+      </div>
+      
+      {/* Stats Scroll Section - Scroll-triggered counter reel animation */}
+      <div className="relative z-30 -mt-0">
+        <StatsScroll />
       </div>
       
       {/* Next Section - Flows naturally below hero with proper spacing */}
