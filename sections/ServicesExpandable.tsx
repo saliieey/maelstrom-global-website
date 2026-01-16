@@ -52,7 +52,7 @@ const SERVICES: ServiceItem[] = [
 const PlusIcon = ({ 
   iconRef 
 }: { 
-  iconRef: React.RefObject<SVGSVGElement>;
+  iconRef: React.RefObject<SVGSVGElement | null>;
 }) => {
   return (
     <svg
