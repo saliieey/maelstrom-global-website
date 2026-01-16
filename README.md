@@ -107,18 +107,6 @@ maelstrom-global-website/
 
 **See** `ALIGNMENT_GUIDE.md` for complete alignment strategy.
 
-## 🌍 Multilingual Support (4 Languages)
-
-- ✅ **Languages**: English (en), Arabic (ar), Hindi (hi), Malayalam (ml)
-- ✅ **RTL Support**: Automatic RTL for Arabic
-- ✅ **Language Switcher**: Dropdown with flag icons (ideal UX)
-- ✅ **Auto Detection**: Detects browser language preference
-- ✅ **Cookie Persistence**: Remembers user's language choice
-- ✅ **SEO Friendly**: Locale-based URLs (/en/, /ar/, /hi/, /ml/)
-- ✅ **Navigation**: Categorized Services dropdown with headings
-
-**See** `I18N_GUIDE.md` for complete multilingual strategy.
-
 ## 🎨 Animations
 
 - ✅ **GSAP** - Advanced scroll animations (lazy loaded)

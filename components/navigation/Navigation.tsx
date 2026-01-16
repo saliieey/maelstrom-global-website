@@ -11,10 +11,9 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { getNavigationItems, type NavigationItem } from '@/lib/i18n/navigation';
+import { getNavigationItems, type NavigationItem } from '@/lib/navigation';
 
 export const Navigation = () => {
-  const locale = 'en' as const; // English only
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
@@ -226,10 +225,10 @@ export const Navigation = () => {
                             lineHeight: '1.2',
                           }}
                       aria-expanded={activeDropdown === item.href}
-                      title={item.label[locale]}
+                      title={item.label}
                     >
                           <span className="inline-block align-middle">
-                      {item.label[locale]}
+                      {item.label}
                           </span>
                       <svg
                             className="w-3 h-3 xl:w-3.5 xl:h-3.5 transition-transform duration-300 flex-shrink-0 ml-0.5 inline-block align-middle"
@@ -264,9 +263,9 @@ export const Navigation = () => {
                             : '2px solid transparent',
                           lineHeight: '1.2',
                         }}
-                        title={item.label[locale]}
+                        title={item.label}
                   >
-                    <span className="inline-block align-middle">{item.label[locale]}</span>
+                    <span className="inline-block align-middle">{item.label}</span>
                   </Link>
                 )}
               </div>
@@ -384,7 +383,7 @@ export const Navigation = () => {
                       }`}
                     >
                         <span className="text-base font-semibold">
-                      {item.label[locale]}
+                      {item.label}
                         </span>
                       <svg
                           className={`w-5 h-5 transition-transform duration-300 flex-shrink-0 ${
@@ -427,7 +426,7 @@ export const Navigation = () => {
                                   className="w-full flex items-center justify-between py-3 text-left transition-colors duration-200 group hover:text-[#f26533]"
                                 >
                                   <h3 className="text-xs font-semibold uppercase text-white tracking-wider transition-colors duration-200 flex-1 pr-2">
-                              {category.label[locale]}
+                              {category.label}
                                   </h3>
                                   {category.children && category.children.length > 0 && (
                                     <svg
@@ -472,7 +471,7 @@ export const Navigation = () => {
                                   }}
                                           className="block py-2 text-sm text-white/90 hover:text-[#f26533] transition-colors duration-200"
                                 >
-                                  {subItem.label[locale]}
+                                  {subItem.label}
                                 </Link>
                               ))}
                           </div>
@@ -495,7 +494,7 @@ export const Navigation = () => {
                           : 'text-white hover:text-[#f26533]'
                     }`}
                   >
-                    {item.label[locale]}
+                    {item.label}
                   </Link>
                 )}
               </div>
@@ -549,9 +548,9 @@ export const Navigation = () => {
                           >
                               <h3 
                                 className={`text-xs font-semibold uppercase text-white tracking-wider transition-colors duration-200 flex-1 pr-2`}
-                                title={category.label[locale]}
+                                title={category.label}
                               >
-                                {category.label[locale]}
+                                {category.label}
                               </h3>
                             {category.children && category.children.length > 0 && (
                               <svg
@@ -600,9 +599,9 @@ export const Navigation = () => {
                                       }, 250);
                                     }}
                                     className="block py-2 text-sm text-white/90 hover:text-[#f26533] transition-colors duration-200"
-                                    title={subItem.label[locale]}
+                                    title={subItem.label}
                                   >
-                                    {subItem.label[locale]}
+                                    {subItem.label}
                                   </Link>
                                 ))}
                               </div>

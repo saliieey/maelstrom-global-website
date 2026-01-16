@@ -10,6 +10,7 @@
 import { HeroScroll } from "@/sections/HeroScroll";
 import { TextReveal } from "@/sections/TextReveal";
 import { PortfolioGrid } from "@/sections/PortfolioGrid";
+import { ServicesExpandable } from "@/sections/ServicesExpandable";
 
 export default function Home() {
   return (
@@ -29,6 +30,11 @@ export default function Home() {
       {/* Higher z-index with solid background - covers TextReveal as it slides up */}
       <div className="relative z-10">
         <PortfolioGrid />
+      </div>
+      
+      {/* Services Expandable Section - Expandable service cards with slide-up overlay */}
+      <div className="relative z-20">
+        <ServicesExpandable />
       </div>
       
       {/* Next Section - Flows naturally below hero with proper spacing */}
