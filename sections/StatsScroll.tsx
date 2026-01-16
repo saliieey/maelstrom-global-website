@@ -89,8 +89,8 @@ const NumberReel = ({
   numbersRef,
 }: {
   stats: StatItem[];
-  reelRef: React.RefObject<HTMLDivElement>;
-  numbersRef: React.RefObject<HTMLDivElement[]>;
+  reelRef: React.RefObject<HTMLDivElement |  null>;
+  numbersRef: React.RefObject<HTMLDivElement[] | null>;
 }) => {
   return (
     <div className="relative w-full max-w-[400px] md:max-w-[500px] lg:max-w-[600px] mx-auto">
