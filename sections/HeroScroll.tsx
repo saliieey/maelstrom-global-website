@@ -12,6 +12,7 @@ export const HeroScroll = () => {
   const leftContentRef = useRef<HTMLDivElement>(null);
   const rightContentRef = useRef<HTMLDivElement>(null);
   const resizeHandlerRef = useRef<(() => void) | null>(null);
+  const scrollTriggersRef = useRef<ScrollTrigger[]>([]);
 
   useEffect(() => {
     // Register ScrollTrigger plugin only on client side
@@ -97,9 +98,12 @@ export const HeroScroll = () => {
           invalidateOnRefresh: true,
         },
       });
+      if (tl.scrollTrigger) {
+        scrollTriggersRef.current.push(tl.scrollTrigger);
+      }
 
       // Pin the sticky container - AFTER timeline
-      ScrollTrigger.create({
+      const pinTrigger = ScrollTrigger.create({
         trigger: container,
         start: `top-=${gap} top`,
         end: scrollDistance,
@@ -142,6 +146,7 @@ export const HeroScroll = () => {
           }
         },
       });
+      scrollTriggersRef.current.push(pinTrigger);
 
       // Step 1: Shrink video wrapper - smaller scale for tablet (40%)
       // Video shrinks first, completes around 50% of scroll
@@ -275,9 +280,12 @@ export const HeroScroll = () => {
           invalidateOnRefresh: true, // Recalculate on resize
         },
       });
+      if (tl.scrollTrigger) {
+        scrollTriggersRef.current.push(tl.scrollTrigger);
+      }
 
       // Pin the sticky container during animation - AFTER timeline to avoid conflicts
-      ScrollTrigger.create({
+      const pinTriggerDesktop = ScrollTrigger.create({
         trigger: container,
         start: `top-=${gap} top`,
         end: scrollDistance,
@@ -312,6 +320,7 @@ export const HeroScroll = () => {
           }
         },
       });
+      scrollTriggersRef.current.push(pinTriggerDesktop);
 
       // Step 1: Shrink video wrapper and position it in center - smooth animation
       // Video shrinks first, completes around 50% of scroll
@@ -437,7 +446,13 @@ export const HeroScroll = () => {
       if (resizeHandlerRef.current) {
         window.removeEventListener("resize", resizeHandlerRef.current);
       }
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+      // Only kill ScrollTriggers created by this component
+      scrollTriggersRef.current.forEach((trigger) => {
+        if (trigger) {
+          trigger.kill();
+        }
+      });
+      scrollTriggersRef.current = [];
       mm.revert();
     };
   }, []);

@@ -22,6 +22,7 @@ export const TextReveal = () => {
   const backgroundRef = useRef<HTMLDivElement>(null);
   const containerBackgroundRef = useRef<HTMLDivElement>(null);
   const wordsRef = useRef<HTMLSpanElement[]>([]);
+  const scrollTriggersRef = useRef<ScrollTrigger[]>([]);
 
   const text =
     "We unite Design & Technology to add Value to your business with our all-inclusive services for a complete digital and technological outreach.";
@@ -68,7 +69,7 @@ export const TextReveal = () => {
       const gap = 96;
 
       // Pin the sticky container during scroll - STAYS SOLID BLACK until text fully reveals
-      ScrollTrigger.create({
+      const pinTrigger = ScrollTrigger.create({
         trigger: container,
         start: `top-=${gap} top`,
         end: "+=350%", // 3.5x viewport height - ensures text fully reveals with proper hold period
@@ -135,6 +136,7 @@ export const TextReveal = () => {
           }
         },
       });
+      scrollTriggersRef.current.push(pinTrigger);
 
       // Create timeline for smooth word reveal animation
       const tl = gsap.timeline({
@@ -147,6 +149,9 @@ export const TextReveal = () => {
           invalidateOnRefresh: true,
         },
       });
+      if (tl.scrollTrigger) {
+        scrollTriggersRef.current.push(tl.scrollTrigger);
+      }
 
       // Animate words from dim (unread) to bright orange (read) with stagger
       // Animation completes at ~75% of timeline, leaving 25% hold period before next section
@@ -181,7 +186,7 @@ export const TextReveal = () => {
       const gap = 88;
 
       // Pin the sticky container - STAYS SOLID BLACK until text fully reveals
-      ScrollTrigger.create({
+      const pinTriggerMobile = ScrollTrigger.create({
         trigger: container,
         start: `top-=${gap} top`,
         end: "+=400%", // 4x viewport height - ensures text fully reveals with proper hold period on mobile
@@ -245,6 +250,7 @@ export const TextReveal = () => {
           }
         },
       });
+      scrollTriggersRef.current.push(pinTriggerMobile);
 
       // Create timeline for mobile
       const tl = gsap.timeline({
@@ -257,6 +263,9 @@ export const TextReveal = () => {
           invalidateOnRefresh: true,
         },
       });
+      if (tl.scrollTrigger) {
+        scrollTriggersRef.current.push(tl.scrollTrigger);
+      }
 
       // Animate words with stagger for mobile
       // Animation completes at ~70% of timeline, leaving 30% hold period before next section
@@ -287,7 +296,13 @@ export const TextReveal = () => {
     // Cleanup on unmount
     return () => {
       clearTimeout(timeoutId);
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+      // Only kill ScrollTriggers created by this component
+      scrollTriggersRef.current.forEach((trigger) => {
+        if (trigger) {
+          trigger.kill();
+        }
+      });
+      scrollTriggersRef.current = [];
       mm.revert();
     };
   }, [words.length]);

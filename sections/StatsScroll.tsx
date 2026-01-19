@@ -266,6 +266,7 @@ export const StatsScroll = () => {
   const leftTextRefs = useRef<HTMLDivElement[]>([]);
   const rightTextRefs = useRef<HTMLDivElement[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
+  const scrollTriggersRef = useRef<ScrollTrigger[]>([]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -350,7 +351,7 @@ export const StatsScroll = () => {
       });
 
       // Pin the sticky container - starts when section top reaches navbar bottom
-      ScrollTrigger.create({
+      const pinTrigger = ScrollTrigger.create({
         trigger: container,
         start: `top-=${gap} top`,
         end: scrollDistance,
@@ -392,6 +393,7 @@ export const StatsScroll = () => {
           });
         },
       });
+      scrollTriggersRef.current.push(pinTrigger);
 
       // Create timeline for reel animation
       const tl = gsap.timeline({
@@ -404,6 +406,9 @@ export const StatsScroll = () => {
           invalidateOnRefresh: true,
         },
       });
+      if (tl.scrollTrigger) {
+        scrollTriggersRef.current.push(tl.scrollTrigger);
+      }
 
       // Animate reel movement - simple and smooth like TextReveal
       const reelContainerEl = reel.querySelector('[data-reel-container="true"]') as HTMLElement;
@@ -548,7 +553,7 @@ export const StatsScroll = () => {
       // No fade-out - section scrolls away naturally, just like TextReveal
 
       // Update active index for tracking (optional, for React state if needed)
-      ScrollTrigger.create({
+      const updateTrigger = ScrollTrigger.create({
         trigger: container,
         start: `top-=${gap} top`,
         end: scrollDistance,
@@ -574,6 +579,7 @@ export const StatsScroll = () => {
           }
         },
       });
+      scrollTriggersRef.current.push(updateTrigger);
     });
 
     // Mobile (< 768px)
@@ -642,7 +648,7 @@ export const StatsScroll = () => {
       });
 
       // Pin the sticky container - starts when section top reaches navbar bottom
-      ScrollTrigger.create({
+      const pinTriggerMobile = ScrollTrigger.create({
         trigger: container,
         start: `top-=${gap} top`,
         end: scrollDistance,
@@ -684,6 +690,7 @@ export const StatsScroll = () => {
           });
         },
       });
+      scrollTriggersRef.current.push(pinTriggerMobile);
 
       // Create timeline for mobile
       const tl = gsap.timeline({
@@ -696,6 +703,9 @@ export const StatsScroll = () => {
           invalidateOnRefresh: true,
         },
       });
+      if (tl.scrollTrigger) {
+        scrollTriggersRef.current.push(tl.scrollTrigger);
+      }
 
       // Animate reel movement - simple and smooth (mobile)
       const reelContainerMobileEl = reel.querySelector('[data-reel-container="true"]') as HTMLElement;
@@ -831,7 +841,7 @@ export const StatsScroll = () => {
       // No fade-out - section scrolls away naturally, just like TextReveal
 
       // Update active index for tracking (optional, for React state if needed)
-      ScrollTrigger.create({
+      const updateTriggerMobile = ScrollTrigger.create({
         trigger: container,
         start: `top-=${gap} top`,
         end: scrollDistance,
@@ -857,12 +867,19 @@ export const StatsScroll = () => {
           }
         },
       });
+      scrollTriggersRef.current.push(updateTriggerMobile);
     });
 
     ScrollTrigger.refresh();
 
     return () => {
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+      // Only kill ScrollTriggers created by this component
+      scrollTriggersRef.current.forEach((trigger) => {
+        if (trigger) {
+          trigger.kill();
+        }
+      });
+      scrollTriggersRef.current = [];
       mm.revert();
     };
   }, [activeIndex]);
