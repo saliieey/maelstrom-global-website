@@ -12,6 +12,7 @@ import { TextReveal } from "@/sections/TextReveal";
 import { PortfolioGrid } from "@/sections/PortfolioGrid";
 import { ServicesExpandable } from "@/sections/ServicesExpandable";
 import { StatsScroll } from "@/sections/StatsScroll";
+import { ClientsSection } from "@/sections/ClientsSection";
 
 export default function Home() {
   return (
@@ -41,6 +42,11 @@ export default function Home() {
       {/* Stats Scroll Section - Scroll-triggered counter reel animation */}
       <div className="relative z-30 -mt-0">
         <StatsScroll />
+      </div>
+      
+      {/* Clients Section - Client logos with hover effects */}
+      <div className="relative z-40">
+        <ClientsSection />
       </div>
       
       {/* Next Section - Flows naturally below hero with proper spacing */}
