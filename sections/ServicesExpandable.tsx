@@ -546,16 +546,16 @@ export const ServicesExpandable = () => {
 
   return (
     <Section id="services" padding="lg" className="bg-neutral-900">
-      <Container maxWidth="xl">
+      <Container maxWidth="xl" padding={false} className="!px-0 md:!px-6 lg:!px-8">
         {/* Section Title */}
-        <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-12 md:mb-16 text-center">
+        <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-12 md:mb-16 text-center px-0 md:px-0">
           Our Services
         </h2>
 
          {/* Services Grid - Staggered on Desktop (Serienreif Style - Cascading Layout) */}
          <div
            ref={containerRef}
-           className="flex flex-col lg:flex-row lg:flex-nowrap lg:justify-center lg:items-start relative w-full px-4 md:px-6 lg:px-8"
+           className="flex flex-col lg:flex-row lg:flex-nowrap lg:justify-center lg:items-start relative w-full px-0 md:px-6 lg:px-8"
            style={{
              gap: "1.5rem", // 24px gap between cards
              overflow: "visible", // No scrollbar - all cards visible
