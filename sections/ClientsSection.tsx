@@ -1,8 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useEffect, useRef, useState } from "react";
 
 /**
  * Client Logo Interface
@@ -16,302 +14,260 @@ interface ClientLogo {
 
 /**
  * ClientsSection Component
- * Displays client logos in a grid with hover effects
- * Similar to digitalbuddha.in design with dark gradient background
+ * Professional section with sticky scroll animation
+ * Elegant gradient background with animated client logos grid
  */
 export const ClientsSection = () => {
+  const sectionRef = useRef<HTMLElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const titleRef = useRef<HTMLHeadingElement>(null);
-  const logosRef = useRef<(HTMLDivElement | null)[]>([]);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
 
-  // Client logos - All 21 logos from the clients folder
+  // Client logos - Only visible logos (removed problematic ones showing as white circles)
   const clientLogos: ClientLogo[] = [
     { id: "client-1", name: "Client 1", src: "/assets/images/clients/1@4x.png", alt: "Client 1 Logo" },
     { id: "client-2", name: "Client 2", src: "/assets/images/clients/Asset 2@4x.png", alt: "Client 2 Logo" },
     { id: "client-3", name: "Client 3", src: "/assets/images/clients/Asset 3@4x.png", alt: "Client 3 Logo" },
     { id: "client-4", name: "Client 4", src: "/assets/images/clients/Asset 4@4x.png", alt: "Client 4 Logo" },
-    { id: "client-5", name: "Client 5", src: "/assets/images/clients/Asset 6@4x.png", alt: "Client 5 Logo" },
-    { id: "client-6", name: "Client 6", src: "/assets/images/clients/Asset 7@4x.png", alt: "Client 6 Logo" },
-    { id: "client-7", name: "Client 7", src: "/assets/images/clients/Asset 8@4x.png", alt: "Client 7 Logo" },
-    { id: "client-8", name: "Client 8", src: "/assets/images/clients/Asset 9@4x.png", alt: "Client 8 Logo" },
-    { id: "client-9", name: "Client 9", src: "/assets/images/clients/Asset 10@4x.png", alt: "Client 9 Logo" },
-    { id: "client-10", name: "Client 10", src: "/assets/images/clients/Asset 11@4x.png", alt: "Client 10 Logo" },
-    { id: "client-11", name: "Client 11", src: "/assets/images/clients/Asset 12@4x.png", alt: "Client 11 Logo" },
-    { id: "client-12", name: "Client 12", src: "/assets/images/clients/Asset 13@4x.png", alt: "Client 12 Logo" },
-    { id: "client-13", name: "Client 13", src: "/assets/images/clients/Asset 14@4x.png", alt: "Client 13 Logo" },
-    { id: "client-14", name: "Client 14", src: "/assets/images/clients/Asset 15@4x.png", alt: "Client 14 Logo" },
-    { id: "client-15", name: "Client 15", src: "/assets/images/clients/Asset 16@4x.png", alt: "Client 15 Logo" },
-    { id: "client-16", name: "Client 16", src: "/assets/images/clients/Asset 17@4x.png", alt: "Client 16 Logo" },
-    { id: "client-17", name: "Client 17", src: "/assets/images/clients/Asset 18@4x.png", alt: "Client 17 Logo" },
-    { id: "client-18", name: "Client 18", src: "/assets/images/clients/Asset 19@4x.png", alt: "Client 18 Logo" },
-    { id: "client-19", name: "Client 19", src: "/assets/images/clients/Asset 20@4x.png", alt: "Client 19 Logo" },
-    { id: "client-20", name: "Client 20", src: "/assets/images/clients/Asset 21@4x.png", alt: "Client 20 Logo" },
-    { id: "client-21", name: "Client 21", src: "/assets/images/clients/Asset 21@4x.png", alt: "Client 21 Logo" },
+    { id: "client-5", name: "Client 5", src: "/assets/images/clients/Asset 7@4x.png", alt: "Client 5 Logo" },
+    { id: "client-6", name: "Client 6", src: "/assets/images/clients/Asset 8@4x.png", alt: "Client 6 Logo" },
+    { id: "client-7", name: "Client 7", src: "/assets/images/clients/Asset 10@4x.png", alt: "Client 7 Logo" },
+    { id: "client-8", name: "Client 8", src: "/assets/images/clients/Asset 11@4x.png", alt: "Client 8 Logo" },
+    { id: "client-9", name: "Client 9", src: "/assets/images/clients/Asset 12@4x.png", alt: "Client 9 Logo" },
+    { id: "client-10", name: "Client 10", src: "/assets/images/clients/Asset 13@4x.png", alt: "Client 10 Logo" },
+    { id: "client-11", name: "Client 11", src: "/assets/images/clients/Asset 14@4x.png", alt: "Client 11 Logo" },
+    { id: "client-12", name: "Client 12", src: "/assets/images/clients/Asset 15@4x.png", alt: "Client 12 Logo" },
+    { id: "client-13", name: "Client 13", src: "/assets/images/clients/Asset 16@4x.png", alt: "Client 13 Logo" },
+    { id: "client-14", name: "Client 14", src: "/assets/images/clients/Asset 17@4x.png", alt: "Client 14 Logo" },
+    { id: "client-15", name: "Client 15", src: "/assets/images/clients/Asset 18@4x.png", alt: "Client 15 Logo" },
+    { id: "client-16", name: "Client 16", src: "/assets/images/clients/Asset 19@4x.png", alt: "Client 16 Logo" },
+    { id: "client-17", name: "Client 17", src: "/assets/images/clients/Asset 20@4x.png", alt: "Client 17 Logo" },
+    { id: "client-18", name: "Client 18", src: "/assets/images/clients/Asset 21@4x.png", alt: "Client 18 Logo" },
   ];
 
-  // GSAP scroll animations
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    gsap.registerPlugin(ScrollTrigger);
+    // Check if mobile on mount and resize
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener("resize", checkMobile, { passive: true });
 
-    const container = containerRef.current;
-    const title = titleRef.current;
-    if (!container || !title) return;
+    const handleScroll = () => {
+      if (!sectionRef.current) return;
 
-    const logos = logosRef.current.filter(Boolean);
-    if (logos.length === 0) return;
+      const section = sectionRef.current;
+      const rect = section.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      const scrollY = window.scrollY || window.pageYOffset;
+      
+      // Get section's absolute position
+      const sectionTop = rect.top + scrollY;
+      const sectionHeight = rect.height;
+      
+      // Calculate progress based on scroll position relative to section
+      // Progress: 0 when section top reaches viewport top
+      // Progress: 1 when section bottom reaches viewport bottom
+      const viewportTop = scrollY;
+      const viewportBottom = scrollY + windowHeight;
+      
+      let progress = 0;
+      
+      if (viewportTop < sectionTop + sectionHeight && viewportBottom > sectionTop) {
+        // Section is in viewport
+        const sectionStart = sectionTop;
+        const sectionEnd = sectionTop + sectionHeight;
+        const scrollRange = sectionHeight + windowHeight;
+        const scrolled = viewportTop - sectionStart + windowHeight;
+        progress = Math.max(0, Math.min(1, scrolled / scrollRange));
+      } else if (viewportBottom <= sectionTop) {
+        // Section is below viewport
+        progress = 0;
+      } else {
+        // Section is above viewport
+        progress = 1;
+      }
 
-    const mm = gsap.matchMedia();
+      setScrollProgress(progress);
+    };
 
-    // Desktop and Tablet (>= 768px)
-    mm.add("(min-width: 768px)", () => {
-      // Animate title
-      gsap.set(title, {
-        autoAlpha: 0,
-        y: 30,
-      });
+    // Throttle scroll for better performance
+    let ticking = false;
+    const onScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          handleScroll();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
 
-      // Animate logos
-      gsap.set(logos, {
-        autoAlpha: 0,
-        y: 50,
-        scale: 0.9,
-      });
-
-      ScrollTrigger.create({
-        trigger: container,
-        start: "top 85%",
-        onEnter: () => {
-          // Animate title first
-          gsap.to(title, {
-            autoAlpha: 1,
-            y: 0,
-            duration: 0.8,
-            ease: "power2.out",
-          });
-
-          // Then animate logos with stagger
-          gsap.to(logos, {
-            autoAlpha: 1,
-            y: 0,
-            scale: 1,
-            duration: 0.8,
-            ease: "power2.out",
-            stagger: 0.05,
-            delay: 0.2,
-            force3D: true,
-          });
-        },
-        once: true,
-      });
-    });
-
-    // Mobile (< 768px)
-    mm.add("(max-width: 767px)", () => {
-      gsap.set(title, {
-        autoAlpha: 0,
-        y: 20,
-      });
-
-      gsap.set(logos, {
-        autoAlpha: 0,
-        y: 30,
-        scale: 0.95,
-      });
-
-      ScrollTrigger.create({
-        trigger: container,
-        start: "top 85%",
-        onEnter: () => {
-          gsap.to(title, {
-            autoAlpha: 1,
-            y: 0,
-            duration: 0.6,
-            ease: "power2.out",
-          });
-
-          gsap.to(logos, {
-            autoAlpha: 1,
-            y: 0,
-            scale: 1,
-            duration: 0.6,
-            ease: "power2.out",
-            stagger: 0.03,
-            delay: 0.15,
-            force3D: true,
-          });
-        },
-        once: true,
-      });
-    });
-
-    ScrollTrigger.refresh();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", handleScroll, { passive: true });
+    handleScroll(); // Initial calculation
 
     return () => {
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
-      mm.revert();
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", handleScroll);
+      window.removeEventListener("resize", checkMobile);
     };
   }, []);
 
-  // Hover animations (desktop only)
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (window.innerWidth < 768) return;
-
-    const logos = logosRef.current.filter(Boolean);
-    const hoverHandlers: Array<{
-      element: HTMLElement;
-      scaleTween: gsap.core.Tween;
-      enterHandler: () => void;
-      leaveHandler: () => void;
-    }> = [];
-
-    logos.forEach((logo) => {
-      if (!logo) return;
-
-      const bgElement = logo.querySelector(".client-logo-bg") as HTMLElement;
-      const imgElement = logo.querySelector(".client-logo-img") as HTMLElement;
-
-      const scaleTween = gsap.to(logo, {
-        scale: 1.05,
-        duration: 0.4,
-        ease: "power2.out",
-        paused: true,
-        force3D: true,
-      });
-
-      const bgTween = bgElement
-        ? gsap.to(bgElement, {
-            background: "rgba(30, 30, 30, 0.6)",
-            borderColor: "rgba(255, 107, 53, 0.2)",
-            boxShadow: "0 8px 24px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 107, 53, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
-            duration: 0.4,
-            ease: "power2.out",
-            paused: true,
-          })
-        : null;
-
-      const imgTween = imgElement
-        ? gsap.to(imgElement, {
-            filter: "drop-shadow(0 4px 12px rgba(255, 107, 53, 0.3)) drop-shadow(0 2px 8px rgba(0, 0, 0, 0.5))",
-            duration: 0.4,
-            ease: "power2.out",
-            paused: true,
-          })
-        : null;
-
-      const handleMouseEnter = () => {
-        scaleTween.play();
-        bgTween?.play();
-        imgTween?.play();
+  // Calculate transform for each logo based on scroll progress
+  const getLogoTransform = (index: number) => {
+    // Reduce or disable animation on mobile for better UX
+    if (isMobile) {
+      return {
+        transform: `translateY(0px) translateX(0px) rotate(0deg)`,
+        opacity: 0.9,
       };
-
-      const handleMouseLeave = () => {
-        scaleTween.reverse();
-        bgTween?.reverse();
-        imgTween?.reverse();
-      };
-
-      logo.addEventListener("mouseenter", handleMouseEnter);
-      logo.addEventListener("mouseleave", handleMouseLeave);
-
-      hoverHandlers.push({
-        element: logo,
-        scaleTween,
-        enterHandler: handleMouseEnter,
-        leaveHandler: handleMouseLeave,
-      });
-    });
-
-    return () => {
-      hoverHandlers.forEach(
-        ({ element, scaleTween, enterHandler, leaveHandler }) => {
-          element.removeEventListener("mouseenter", enterHandler);
-          element.removeEventListener("mouseleave", leaveHandler);
-          scaleTween.kill();
-        }
-      );
+    }
+    
+    const row = Math.floor(index / 5);
+    const col = index % 5;
+    
+    // Create subtle wave movement that responds to scroll direction
+    const wavePhase = scrollProgress * Math.PI * 2;
+    const rowWave = Math.sin(row * 0.5 + wavePhase) * 10; // Reduced from 20
+    const colWave = Math.cos(col * 0.7 + wavePhase * 0.6) * 8; // Reduced from 15
+    
+    // Vertical movement - more subtle
+    const baseTranslateY = (scrollProgress - 0.5) * 50; // Reduced from 100
+    const translateY = baseTranslateY + rowWave;
+    
+    // Horizontal parallax movement - subtle
+    const translateX = colWave * scrollProgress * 0.5;
+    
+    // Very subtle rotation for depth
+    const rotate = (scrollProgress - 0.5) * col * 0.5; // Reduced from 1.5
+    
+    // Consistent opacity
+    const opacity = 0.9;
+    
+    return {
+      transform: `translateY(${translateY}px) translateX(${translateX}px) rotate(${rotate}deg)`,
+      opacity: opacity,
     };
-  }, []);
+  };
 
   return (
     <section
-      ref={containerRef}
-      className="relative w-full py-16 md:py-24 lg:py-32 clients-section"
+      ref={sectionRef}
+      className="relative w-full py-16 md:py-24 lg:py-28 home-accomplish-client overflow-hidden"
       style={{
-        background: "linear-gradient(180deg, #1a0f1a 0%, #0a0a0a 50%, #000000 100%)",
-        zIndex: 40,
+        background: "linear-gradient(90deg, #5a3c6a 0%, #4a2c4a 25%, #3d1f3d 45%, #2a1a1a 60%, #1f1414 75%, #1a0f0a 90%, #0f0a0a 100%)",
         position: "relative",
+        zIndex: 40,
+        minHeight: "100vh",
       }}
     >
+      {/* Subtle overlay pattern */}
+      <div 
+        className="absolute inset-0 opacity-[0.03]"
+        style={{
+          backgroundImage: `radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.1) 1px, transparent 0)`,
+          backgroundSize: "50px 50px",
+        }}
+      />
+
       {/* Section Title */}
-      <h2
-        ref={titleRef}
-        className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-12 md:mb-16 text-center px-4 md:px-0"
-      >
-        Our Clients
-      </h2>
+      <div className="relative z-10 mb-10 md:mb-16 lg:mb-20">
+        <h2 className="text-3xl md:text-5xl lg:text-6xl font-semibold text-white text-center px-4 md:px-0 tracking-tight">
+          Our Clients
+        </h2>
+      </div>
 
       {/* Client Logos Grid */}
-      <div className="container mx-auto px-4 md:px-6 lg:px-8">
+      <div ref={containerRef} className="relative w-full px-4 md:px-6 lg:px-8 z-10">
         <div
-          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 md:gap-12 lg:gap-16"
+          className="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-5"
           style={{
             maxWidth: "1400px",
             margin: "0 auto",
+            columnGap: "clamp(1.5rem, 4vw, 2.5rem)",
+            rowGap: "clamp(0.25rem, 0.75vw, 0.5rem)",
           }}
         >
-          {clientLogos.map((client, index) => (
-            <div
-              key={client.id}
-              ref={(el) => {
-                logosRef.current[index] = el;
-              }}
-              className="relative flex items-center justify-center p-4 md:p-6 cursor-pointer group client-logo-container"
-              style={{
-                aspectRatio: "1 / 1",
-                willChange: "transform",
-              }}
-            >
-              {/* Subtle dark glassmorphism background */}
-              <div 
-                className="absolute inset-0 rounded-xl transition-all duration-300 client-logo-bg"
+          {clientLogos.map((client, index) => {
+            // Encode spaces in file paths for proper URL handling
+            const encodedSrc = client.src.replace(/ /g, '%20');
+            const logoStyle = getLogoTransform(index);
+            
+            return (
+              <div
+                key={client.id}
+                className="relative flex items-center justify-center"
                 style={{
-                  background: "rgba(26, 26, 26, 0.4)",
-                  backdropFilter: "blur(8px)",
-                  border: "1px solid rgba(255, 255, 255, 0.08)",
-                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)",
+                  aspectRatio: "1 / 1",
+                  transform: logoStyle.transform,
+                  opacity: logoStyle.opacity,
+                  willChange: "transform",
                 }}
-              />
-              
-              {/* Subtle orange glow on hover */}
-              <div 
-                className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 client-logo-glow"
-                style={{
-                  background: "radial-gradient(circle at center, rgba(255, 107, 53, 0.15) 0%, transparent 70%)",
-                  boxShadow: "0 0 20px rgba(255, 107, 53, 0.2), inset 0 0 20px rgba(255, 107, 53, 0.1)",
-                }}
-              />
-              
-              <div className="relative w-full h-full flex items-center justify-center z-10">
+                data-client-index={index}
+                data-client-src={client.src}
+              >
                 <img
-                  src={client.src}
+                  src={encodedSrc}
                   alt={client.alt}
-                  className="w-full h-full object-contain transition-all duration-300 client-logo-img"
+                  className="object-contain w-full h-full grayscale brightness-0 invert max-w-[80%] max-h-[80%] md:max-w-[65%] md:max-h-[65%]"
                   style={{
-                    maxWidth: "100%",
-                    maxHeight: "100%",
+                    width: "auto",
+                    height: "auto",
                     objectFit: "contain",
-                    filter: "drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4))",
+                    filter: "brightness(0) invert(1) opacity(0.95)",
                   }}
                   loading="lazy"
+                  onError={(e) => {
+                    const img = e.target as HTMLImageElement;
+                    const container = img.closest('div[data-client-index]') as HTMLElement;
+                    console.error(`❌ Failed to load: ${client.src} - hiding container`);
+                    if (container) {
+                      container.style.display = 'none';
+                    }
+                  }}
+                  onLoad={(e) => {
+                    const img = e.target as HTMLImageElement;
+                    const container = img.closest('div[data-client-index]') as HTMLElement;
+                    
+                    if (img.naturalWidth > 0 && img.naturalHeight > 0) {
+                      // Responsive logo sizing - larger on mobile
+                      const isMobile = window.innerWidth < 768;
+                      const logoSize = isMobile ? '80%' : '65%';
+                      
+                      img.style.width = 'auto';
+                      img.style.height = 'auto';
+                      img.style.maxWidth = logoSize;
+                      img.style.maxHeight = logoSize;
+                      img.style.objectFit = 'contain';
+                      img.style.display = 'block';
+                      
+                      requestAnimationFrame(() => {
+                        const rect = img.getBoundingClientRect();
+                        
+                        if (rect.width === 0 || rect.height === 0) {
+                          console.warn(`⚠️ ${client.src} loaded but not visible - hiding container`);
+                          if (container) {
+                            container.style.display = 'none';
+                          }
+                        } else {
+                          console.log(`✅ ${client.src} - ${img.naturalWidth}x${img.naturalHeight}px - visible`);
+                        }
+                      });
+                    } else {
+                      console.error(`❌ ${client.src} has zero dimensions - hiding container`);
+                      if (container) {
+                        container.style.display = 'none';
+                      }
+                    }
+                  }}
                 />
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>
   );
 };
-
