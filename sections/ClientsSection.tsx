@@ -187,7 +187,7 @@ export const ClientsSection = () => {
             maxWidth: "1400px",
             margin: "0 auto",
             columnGap: "clamp(1.5rem, 4vw, 2.5rem)",
-            rowGap: "clamp(0.25rem, 0.75vw, 0.5rem)",
+            rowGap: "0",
           }}
         >
           {clientLogos.map((client, index) => {
@@ -204,6 +204,7 @@ export const ClientsSection = () => {
                   transform: logoStyle.transform,
                   opacity: logoStyle.opacity,
                   willChange: "transform",
+                  marginBottom: "-1.5rem",
                 }}
                 data-client-index={index}
                 data-client-src={client.src}
