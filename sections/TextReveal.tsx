@@ -67,24 +67,94 @@ export const TextReveal = () => {
 
       // Calculate gap for navbar
       const gap = 96;
+      
+      // Calculate equal spacing once - store it for reuse
+      let equalSpacing = 0;
+      const calculateSpacing = () => {
+        if (textElement && sticky) {
+          // Use getBoundingClientRect for accurate measurement
+          const containerHeight = window.innerHeight - gap;
+          const textRect = textElement.getBoundingClientRect();
+          const textHeight = textRect.height;
+          equalSpacing = Math.max(32, (containerHeight - textHeight) / 2); // Minimum 2rem (32px)
+        }
+      };
 
-      // Pin the sticky container during scroll - STAYS SOLID BLACK until text fully reveals
+      // Pin the sticky container during scroll - releases after animation completes so text scrolls away with section
+      // Animation completes at ~75% of timeline, pin releases after completion so entire section scrolls naturally
       const pinTrigger = ScrollTrigger.create({
         trigger: container,
         start: `top-=${gap} top`,
-        end: "+=350%", // 3.5x viewport height - ensures text fully reveals with proper hold period
+        end: "+=160%", // Pin ends when timeline completes - ensures text is fully revealed before pin releases
         pin: sticky,
         pinSpacing: true,
         anticipatePin: 1,
         invalidateOnRefresh: true,
+        onLeave: () => {
+          // Pin releases - maintain exact same visual position
+          // Recalculate spacing to ensure accuracy (text might have changed)
+          calculateSpacing();
+          
+          // Use requestAnimationFrame to ensure DOM is ready
+          requestAnimationFrame(() => {
+            // Maintain container height
+            gsap.set(sticky, {
+              willChange: "auto",
+              height: `calc(100vh - ${gap}px)`, // Maintain same height
+              minHeight: `calc(100vh - ${gap}px)`, // Maintain same min-height
+              paddingTop: "0", // Remove padding - use margin on text instead
+              paddingBottom: "0", // Remove padding - use margin on text instead
+              alignItems: "flex-start", // Use flex-start to control exact position
+              justifyContent: "center", // Maintain horizontal centering
+            });
+            
+            // Position text with equal top and bottom margins using stored spacing
+            if (textElement && equalSpacing > 0) {
+              gsap.set(textElement, {
+                minHeight: "auto", // Remove full height constraint
+                marginTop: `${equalSpacing}px`, // Equal spacing from top
+                marginBottom: `${equalSpacing}px`, // Equal spacing from bottom
+              });
+            }
+          });
+          // Ensure black background extends to cover any remaining space
+          if (backgroundRef.current) {
+            gsap.set(backgroundRef.current, { 
+              opacity: 1,
+              height: "100%",
+            });
+          }
+          if (containerBackgroundRef.current) {
+            gsap.set(containerBackgroundRef.current, { 
+              opacity: 1,
+              height: "100%",
+            });
+          }
+        },
         onEnter: () => {
           // Set exact height for perfect centering (viewport minus navbar gap)
           gsap.set(sticky, { 
             top: `${gap}px`, 
             height: `calc(100vh - ${gap}px)`,
             minHeight: `calc(100vh - ${gap}px)`,
+            paddingTop: "2rem", // Consistent top padding
+            paddingBottom: "2rem", // Consistent bottom padding
+            alignItems: "center", // Ensure center alignment
+            justifyContent: "center", // Maintain horizontal centering
             willChange: "transform" 
           });
+          // Reset text container to centered state - clear any margins
+          if (textElement) {
+            gsap.set(textElement, {
+              minHeight: "100%", // Full height for centering
+              marginTop: "0", // Clear any margin
+              marginBottom: "0", // Clear any margin
+            });
+          }
+          // Calculate spacing when entering - ensures accurate measurement
+          setTimeout(() => {
+            calculateSpacing();
+          }, 100);
           // Ensure black background stays solid
           if (backgroundRef.current) {
             gsap.set(backgroundRef.current, { opacity: 1 });
@@ -99,8 +169,24 @@ export const TextReveal = () => {
             top: `${gap}px`, 
             height: `calc(100vh - ${gap}px)`,
             minHeight: `calc(100vh - ${gap}px)`,
+            paddingTop: "2rem", // Consistent top padding
+            paddingBottom: "2rem", // Consistent bottom padding
+            alignItems: "center", // Ensure center alignment
+            justifyContent: "center", // Maintain horizontal centering
             willChange: "transform" 
           });
+          // Reset text container to centered state - clear any margins
+          if (textElement) {
+            gsap.set(textElement, {
+              minHeight: "100%", // Full height for centering
+              marginTop: "0", // Clear any margin
+              marginBottom: "0", // Clear any margin
+            });
+          }
+          // Recalculate spacing when entering back (for future use)
+          setTimeout(() => {
+            calculateSpacing();
+          }, 100);
           // Ensure black background stays solid
           if (backgroundRef.current) {
             gsap.set(backgroundRef.current, { opacity: 1 });
@@ -109,24 +195,27 @@ export const TextReveal = () => {
             gsap.set(containerBackgroundRef.current, { opacity: 1 });
           }
         },
-        onLeave: () => {
-          // Pin releases - section scrolls away naturally, revealing PortfolioGrid underneath
-          // Black background stays visible until pin releases, then scrolls away with section
-          gsap.set(sticky, {
-            willChange: "auto",
-            clearProps: "transform",
-          });
-          // Keep backgrounds visible - they scroll away naturally with the section
-        },
         onLeaveBack: () => {
-          // Set exact height for perfect centering when scrolling back
+          // When scrolling back, reset to centered state with padding
           gsap.set(sticky, {
             willChange: "auto",
             position: "sticky",
             top: `${gap}px`,
             height: `calc(100vh - ${gap}px)`,
             minHeight: `calc(100vh - ${gap}px)`,
+            paddingTop: "2rem", // Reset to padding for centered state
+            paddingBottom: "2rem", // Reset to padding for centered state
+            alignItems: "center", // Reset to center alignment
+            justifyContent: "center", // Maintain horizontal centering
           });
+          // Reset text container
+          if (textElement) {
+            gsap.set(textElement, {
+              minHeight: "100%", // Reset to full height for centering
+              marginTop: "0", // Remove margin
+              marginBottom: "0", // Remove margin
+            });
+          }
           // Ensure black background stays solid when scrolling back
           if (backgroundRef.current) {
             gsap.set(backgroundRef.current, { opacity: 1 });
@@ -143,7 +232,7 @@ export const TextReveal = () => {
         scrollTrigger: {
           trigger: container,
           start: `top-=${gap} top`,
-          end: "+=350%", // Match pin end - ensures animation completes with proper hold period
+          end: "+=160%", // Animation completes at ~75% of this (~120% viewport) - pin ends at 120%
           scrub: 1, // Smooth scrubbing
           anticipatePin: 1,
           invalidateOnRefresh: true,
@@ -184,12 +273,25 @@ export const TextReveal = () => {
       });
 
       const gap = 88;
+      
+      // Calculate equal spacing once - store it for reuse
+      let equalSpacing = 0;
+      const calculateSpacing = () => {
+        if (textElement && sticky) {
+          // Use getBoundingClientRect for accurate measurement
+          const containerHeight = window.innerHeight - gap;
+          const textRect = textElement.getBoundingClientRect();
+          const textHeight = textRect.height;
+          equalSpacing = Math.max(32, (containerHeight - textHeight) / 2); // Minimum 2rem (32px)
+        }
+      };
 
-      // Pin the sticky container - STAYS SOLID BLACK until text fully reveals
+      // Pin the sticky container - releases after animation completes so text scrolls away with section
+      // Animation completes at ~70% of timeline, pin releases after completion so entire section scrolls naturally
       const pinTriggerMobile = ScrollTrigger.create({
         trigger: container,
         start: `top-=${gap} top`,
-        end: "+=400%", // 4x viewport height - ensures text fully reveals with proper hold period on mobile
+        end: "+=157%", // Pin ends when timeline completes - ensures text is fully revealed before pin releases
         pin: sticky,
         pinSpacing: true,
         anticipatePin: 1,
@@ -200,8 +302,24 @@ export const TextReveal = () => {
             top: `${gap}px`, 
             height: `calc(100vh - ${gap}px)`,
             minHeight: `calc(100vh - ${gap}px)`,
+            paddingTop: "2rem", // Consistent top padding
+            paddingBottom: "2rem", // Consistent bottom padding
+            alignItems: "center", // Ensure center alignment
+            justifyContent: "center", // Maintain horizontal centering
             willChange: "transform" 
           });
+          // Reset text container to centered state - clear any margins
+          if (textElement) {
+            gsap.set(textElement, {
+              minHeight: "100%", // Full height for centering
+              marginTop: "0", // Clear any margin
+              marginBottom: "0", // Clear any margin
+            });
+          }
+          // Calculate spacing when entering - ensures accurate measurement
+          setTimeout(() => {
+            calculateSpacing();
+          }, 100);
           // Ensure black background stays solid
           if (backgroundRef.current) {
             gsap.set(backgroundRef.current, { opacity: 1 });
@@ -216,8 +334,24 @@ export const TextReveal = () => {
             top: `${gap}px`, 
             height: `calc(100vh - ${gap}px)`,
             minHeight: `calc(100vh - ${gap}px)`,
+            paddingTop: "2rem", // Consistent top padding
+            paddingBottom: "2rem", // Consistent bottom padding
+            alignItems: "center", // Ensure center alignment
+            justifyContent: "center", // Maintain horizontal centering
             willChange: "transform" 
           });
+          // Reset text container to centered state - clear any margins
+          if (textElement) {
+            gsap.set(textElement, {
+              minHeight: "100%", // Full height for centering
+              marginTop: "0", // Clear any margin
+              marginBottom: "0", // Clear any margin
+            });
+          }
+          // Recalculate spacing when entering back (for future use)
+          setTimeout(() => {
+            calculateSpacing();
+          }, 100);
           // Ensure black background stays solid
           if (backgroundRef.current) {
             gsap.set(backgroundRef.current, { opacity: 1 });
@@ -227,20 +361,67 @@ export const TextReveal = () => {
           }
         },
         onLeave: () => {
-          // Pin releases - section scrolls away naturally, revealing PortfolioGrid underneath
-          // Black background stays visible until pin releases, then scrolls away with section
-          gsap.set(sticky, {
-            willChange: "auto",
-            clearProps: "transform",
+          // Pin releases - maintain exact same visual position
+          // Recalculate spacing to ensure accuracy (text might have changed)
+          calculateSpacing();
+          
+          // Use requestAnimationFrame to ensure DOM is ready
+          requestAnimationFrame(() => {
+            // Maintain container height
+            gsap.set(sticky, {
+              willChange: "auto",
+              height: `calc(100vh - ${gap}px)`, // Maintain same height
+              minHeight: `calc(100vh - ${gap}px)`, // Maintain same min-height
+              paddingTop: "0", // Remove padding - use margin on text instead
+              paddingBottom: "0", // Remove padding - use margin on text instead
+              alignItems: "flex-start", // Use flex-start to control exact position
+              justifyContent: "center", // Maintain horizontal centering
+            });
+            
+            // Position text with equal top and bottom margins using stored spacing
+            if (textElement && equalSpacing > 0) {
+              gsap.set(textElement, {
+                minHeight: "auto", // Remove full height constraint
+                marginTop: `${equalSpacing}px`, // Equal spacing from top
+                marginBottom: `${equalSpacing}px`, // Equal spacing from bottom
+              });
+            }
           });
-          // Keep backgrounds visible - they scroll away naturally with the section
+          // Ensure black background extends to cover any remaining space
+          if (backgroundRef.current) {
+            gsap.set(backgroundRef.current, { 
+              opacity: 1,
+              height: "100%",
+            });
+          }
+          if (containerBackgroundRef.current) {
+            gsap.set(containerBackgroundRef.current, { 
+              opacity: 1,
+              height: "100%",
+            });
+          }
         },
         onLeaveBack: () => {
+          // When scrolling back, reset to centered state with padding
           gsap.set(sticky, {
             willChange: "auto",
             position: "sticky",
             top: `${gap}px`,
+            height: `calc(100vh - ${gap}px)`, // Maintain height
+            minHeight: `calc(100vh - ${gap}px)`, // Maintain min-height
+            paddingTop: "2rem", // Reset to padding for centered state
+            paddingBottom: "2rem", // Reset to padding for centered state
+            alignItems: "center", // Reset to center alignment
+            justifyContent: "center", // Maintain horizontal centering
           });
+          // Reset text container
+          if (textElement) {
+            gsap.set(textElement, {
+              minHeight: "100%", // Reset to full height for centering
+              marginTop: "0", // Remove margin
+              marginBottom: "0", // Remove margin
+            });
+          }
           // Ensure black background stays solid when scrolling back
           if (backgroundRef.current) {
             gsap.set(backgroundRef.current, { opacity: 1 });
@@ -257,7 +438,7 @@ export const TextReveal = () => {
         scrollTrigger: {
           trigger: container,
           start: `top-=${gap} top`,
-          end: "+=400%", // Match pin end - ensures animation completes with proper hold period on mobile
+          end: "+=157%", // Animation completes at ~70% of this (~110% viewport) - pin ends at 110%
           scrub: 1,
           anticipatePin: 1,
           invalidateOnRefresh: true,
@@ -310,19 +491,22 @@ export const TextReveal = () => {
   return (
     <div
       ref={containerRef}
-      className="relative w-full md:mt-[300px] z-0"
+      className="relative w-full md:mt-[300px] md:pb-[300px] z-0"
       style={{ 
-        height: "400vh", // Container height matches mobile pin duration (400% = 4 viewport heights) - desktop works fine with extra space
-        minHeight: "400vh",
+        height: "250vh", // Height allows pin to work and section (with text) to scroll away completely naturally
+        minHeight: "250vh",
         marginTop: "0px", // No gap on mobile - flows directly after hero section
       }}
     >
-      {/* Container black background - fades out with animation */}
+      {/* Container black background - covers entire section including bottom gap */}
       <div
         ref={containerBackgroundRef}
         className="absolute inset-0 bg-black z-0"
         style={{
           opacity: 1,
+          height: "100%", // Ensure full coverage
+          minHeight: "100%", // Ensure minimum coverage
+          bottom: "0", // Ensure it extends to bottom
         }}
       />
       {/* Solid black background - stays opaque until pin releases */}
@@ -331,14 +515,19 @@ export const TextReveal = () => {
         className="absolute inset-0 bg-black z-0"
         style={{
           opacity: 1, // Always solid black - no fade
+          height: "100%", // Ensure full coverage
+          minHeight: "100%", // Ensure minimum coverage
+          bottom: "0", // Ensure it extends to bottom
         }}
       />
       <div
         ref={stickyRef}
-        className="sticky top-[88px] lg:top-[96px] w-full flex items-center justify-center px-4 md:px-6 lg:px-8 z-10 relative"
+        className="sticky top-[88px] lg:top-[96px] w-full flex items-center justify-center px-4 md:px-6 lg:px-8 md:py-[300px] z-10 relative"
         style={{
           height: "calc(100vh - 88px)", // Mobile: viewport height minus navbar (88px)
           minHeight: "calc(100vh - 88px)",
+          paddingTop: "2rem", // Consistent top padding to match bottom spacing
+          paddingBottom: "2rem", // Consistent bottom padding to prevent jump and maintain spacing
           willChange: "transform",
           isolation: "isolate",
         }}
@@ -346,14 +535,10 @@ export const TextReveal = () => {
         {/* Perfect vertical and horizontal centering - text container */}
         <div
           ref={textRef}
-          className="text-center max-w-7xl mx-auto w-full"
+          className="text-center max-w-7xl mx-auto w-full flex flex-col items-center justify-center"
           style={{
             fontFamily: "var(--font-geist-sans), Arial, Helvetica, sans-serif",
             opacity: 1, // Text stays visible - no fade
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
             minHeight: "100%", // Take full height for perfect vertical centering
           }}
         >

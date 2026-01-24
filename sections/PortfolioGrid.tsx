@@ -259,7 +259,6 @@ export const PortfolioGrid = () => {
       ref={containerRef}
       className="relative w-full bg-neutral-900 py-16 md:py-24 lg:py-32 portfolio-section"
       style={{
-        zIndex: 10,
         position: "relative",
         paddingLeft: "1rem",
         paddingRight: "1rem",

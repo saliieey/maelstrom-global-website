@@ -401,8 +401,8 @@ export const HeroScroll = () => {
         display: "block",
         width: "90vw",
         maxWidth: "none",
-        margin: "2rem auto 2rem auto",
-        paddingTop: "1rem",
+        margin: "1.5rem auto 1.5rem auto", // 24px top and bottom to match navbar gap
+        paddingTop: "0",
         paddingBottom: "0",
         top: "auto",
         left: "auto",
@@ -418,9 +418,9 @@ export const HeroScroll = () => {
         display: "block",
         width: "90vw",
         maxWidth: "none",
-        margin: "2rem auto 2rem auto",
-        paddingTop: "2rem",
-        paddingBottom: "1rem",
+        margin: "1.5rem auto 1.5rem auto", // 24px top and bottom to match navbar gap
+        paddingTop: "0",
+        paddingBottom: "0",
         top: "auto",
         left: "auto",
         xPercent: 0,
@@ -431,9 +431,8 @@ export const HeroScroll = () => {
       });
 
       // No ScrollTrigger animation on mobile - static layout only
-      // Matches top gap (24px) for perfect symmetry: navbar at top-6 (24px) + height (~44px) + gap (24px) = ~92px
-      // Using 88px for tighter, cleaner spacing
-      const mobileGap = 88; // Matches the visual gap above navbar for symmetry
+      // Matches top gap (24px) for perfect symmetry: navbar at top-6 (24px) + height (40px) + gap (24px) = 88px
+      const mobileGap = 88; // Navbar bottom (24px top + 40px height) + 24px gap = 88px - matches top gap
       gsap.set(sticky, { top: `${mobileGap}px` });
     });
 
@@ -462,15 +461,42 @@ export const HeroScroll = () => {
       ref={containerRef}
       className="relative w-full bg-transparent h-auto md:h-[300vh] md:min-h-[300vh]"
     >
+      {/* Responsive height styles for sticky container */}
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          /* Mobile: Allow container to expand to fit all content */
+          @media (max-width: 1023px) {
+            .hero-sticky-container {
+              height: auto !important;
+              min-height: calc(100vh - 88px) !important;
+              padding-top: 0 !important;
+              padding-bottom: 1.5rem !important; /* 24px to match consistent gap spacing */
+              padding-left: 0 !important; /* Remove padding to align with navbar (90vw centered) */
+              padding-right: 0 !important; /* Remove padding to align with navbar (90vw centered) */
+            }
+          }
+          /* Desktop: Fixed height for scroll animation */
+          @media (min-width: 1024px) {
+            .hero-sticky-container {
+              height: calc(100vh - 96px) !important;
+              min-height: calc(100vh - 96px) !important;
+              padding-bottom: 180px !important;
+              padding-left: 1rem !important; /* Desktop: Restore padding */
+              padding-right: 1rem !important; /* Desktop: Restore padding */
+            }
+          }
+        `
+      }} />
       <div
         ref={stickyRef}
-        className="sticky top-[88px] lg:top-[96px] w-full overflow-visible relative z-0"
+        className="sticky top-[88px] lg:top-[96px] w-full overflow-visible relative z-0 hero-sticky-container"
         style={{ 
-          paddingLeft: "1rem",
-          paddingRight: "1rem",
-          height: "calc(100vh - 96px)", // Account for navbar gap on desktop
-          minHeight: "calc(100vh - 96px)",
-          paddingBottom: "180px", // Increased bottom padding for text at bottom + gap (Mastercard style)
+          paddingLeft: "0", // Mobile: No left padding - content is 90vw centered to match navbar
+          paddingRight: "0", // Mobile: No right padding - content is 90vw centered to match navbar
+          height: "auto", // Mobile: Auto height to fit all content (overridden by CSS for desktop)
+          minHeight: "calc(100vh - 88px)", // Mobile: Minimum viewport height minus navbar and gap
+          paddingTop: "0", // Mobile: No top padding - gap is handled by sticky positioning
+          paddingBottom: "1.5rem", // Mobile: 24px bottom padding to match consistent gap spacing
           willChange: "transform", // Optimize for smooth scrolling
           isolation: "isolate", // Create new stacking context
           pointerEvents: "auto", // Ensure proper interaction

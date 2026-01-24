@@ -23,14 +23,12 @@ export default function Home() {
       </div>
       
       {/* Text Reveal Section - Read Along Effect - Starts after hero with proper gap */}
-      {/* Lower z-index - will be covered by PortfolioGrid sliding up */}
       <div className="relative z-0">
         <TextReveal />
       </div>
       
-      {/* Portfolio Grid Section - Bento Grid Layouts - Slides UP over TextReveal like a curtain */}
-      {/* Higher z-index with solid background - covers TextReveal as it slides up */}
-      <div className="relative z-10">
+      {/* Portfolio Grid Section - Bento Grid Layouts - Appears below TextReveal with natural scroll */}
+      <div className="relative z-0">
         <PortfolioGrid />
       </div>
       
