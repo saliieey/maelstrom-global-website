@@ -34,6 +34,30 @@ export const HeroScroll = () => {
 
     // Use matchMedia for responsive breakpoints
     const mm = gsap.matchMedia();
+    
+    // Immediately set mobile styles to prevent flash of incorrect layout
+    // This ensures consistent alignment on first render before matchMedia runs
+    if (window.innerWidth < 768) {
+      // Set container padding immediately to prevent layout shift
+      gsap.set(sticky, {
+        paddingLeft: "0",
+        paddingRight: "0",
+      });
+      // Set video wrapper and content widths immediately
+      gsap.set(videoWrapper, {
+        width: "90vw",
+        margin: "0 auto",
+        position: "relative",
+      });
+      gsap.set(leftContent, {
+        width: "90vw",
+        margin: "1.5rem auto",
+      });
+      gsap.set(rightContent, {
+        width: "90vw",
+        margin: "1.5rem auto",
+      });
+    }
 
     // Tablet (768px - 1023px) - Similar to desktop but with reduced sizes
     mm.add("(min-width: 768px) and (max-width: 1023px)", () => {
@@ -438,6 +462,45 @@ export const HeroScroll = () => {
 
     // Refresh ScrollTrigger after setup to ensure proper calculations
     ScrollTrigger.refresh();
+    
+    // Store original resize handler (from desktop section) and combine with mobile handler
+    const originalResizeHandler = resizeHandlerRef.current;
+    
+    // Create combined resize handler
+    const combinedResizeHandler = () => {
+      // Call original desktop handler if it exists
+      if (originalResizeHandler) {
+        originalResizeHandler();
+      }
+      
+      // Maintain mobile alignment on resize
+      if (window.innerWidth < 768) {
+        gsap.set(sticky, {
+          paddingLeft: "0",
+          paddingRight: "0",
+        });
+        gsap.set(videoWrapper, {
+          width: "90vw",
+          margin: "0 auto",
+        });
+        gsap.set(leftContent, {
+          width: "90vw",
+          margin: "1.5rem auto",
+        });
+        gsap.set(rightContent, {
+          width: "90vw",
+          margin: "1.5rem auto",
+        });
+      }
+    };
+    
+    // Replace or add resize handler
+    if (originalResizeHandler) {
+      // Remove old handler and add combined one
+      window.removeEventListener("resize", originalResizeHandler);
+    }
+    window.addEventListener("resize", combinedResizeHandler);
+    resizeHandlerRef.current = combinedResizeHandler;
 
     // Cleanup on unmount
     return () => {
@@ -473,6 +536,14 @@ export const HeroScroll = () => {
               padding-bottom: 1.5rem !important; /* 24px to match consistent gap spacing */
               padding-left: 0 !important; /* Remove padding to align with navbar (90vw centered) */
               padding-right: 0 !important; /* Remove padding to align with navbar (90vw centered) */
+            }
+            /* Ensure all 90vw elements are properly centered on initial render */
+            @media (max-width: 1023px) {
+              .hero-sticky-container > div[class*="w-[90vw]"] {
+                width: 90vw !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
+              }
             }
           }
           /* Desktop: Fixed height for scroll animation */
