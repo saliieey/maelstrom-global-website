@@ -157,7 +157,7 @@ export const ClientsSection = () => {
       ref={sectionRef}
       className="relative w-full py-16 md:py-24 lg:py-28 home-accomplish-client overflow-hidden"
       style={{
-        background: "linear-gradient(90deg, #5a3c6a 0%, #4a2c4a 25%, #3d1f3d 45%, #2a1a1a 60%, #1f1414 75%, #1a0f0a 90%, #0f0a0a 100%)",
+        background: "linear-gradient(to top right, #ff9d71 0%, #ff6b35 8%, #ff5a2a 16%, #ff4a16 24%, #e83d1a 32%, #c82e15 40%, #a01f0f 48%, #70150a 56%, #400a05 64%, #1f1f1f 72%, #1a1a1a 80%, #141414 88%, #0f0f0f 94%, #0a0a0a 100%)",
         position: "relative",
         zIndex: 40,
         minHeight: "100vh",
@@ -169,6 +169,14 @@ export const ClientsSection = () => {
         style={{
           backgroundImage: `radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.1) 1px, transparent 0)`,
           backgroundSize: "50px 50px",
+        }}
+      />
+      
+      {/* Dark gradient overlay at bottom */}
+      <div 
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: "linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(10, 10, 10, 0.6) 20%, rgba(20, 20, 20, 0.3) 40%, rgba(26, 26, 26, 0.1) 60%, transparent 80%)",
         }}
       />
 
