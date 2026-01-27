@@ -274,17 +274,9 @@ export const TextReveal = () => {
 
       const gap = 88;
       
-      // Calculate equal spacing once - store it for reuse
-      let equalSpacing = 0;
-      const calculateSpacing = () => {
-        if (textElement && sticky) {
-          // Use getBoundingClientRect for accurate measurement
-          const containerHeight = window.innerHeight - gap;
-          const textRect = textElement.getBoundingClientRect();
-          const textHeight = textRect.height;
-          equalSpacing = Math.max(32, (containerHeight - textHeight) / 2); // Minimum 2rem (32px)
-        }
-      };
+      // Use the same gap value for top and bottom spacing to match the gap at the top of black background
+      // This ensures equal spacing above and below the text, matching the desktop behavior
+      const topBottomGap = gap; // Match the gap from navbar (88px) for consistent spacing
 
       // Pin the sticky container - releases after animation completes so text scrolls away with section
       // Animation completes at ~70% of timeline, pin releases after completion so entire section scrolls naturally
@@ -302,8 +294,8 @@ export const TextReveal = () => {
             top: `${gap}px`, 
             height: `calc(100vh - ${gap}px)`,
             minHeight: `calc(100vh - ${gap}px)`,
-            paddingTop: "2rem", // Consistent top padding
-            paddingBottom: "2rem", // Consistent bottom padding
+            paddingTop: `${topBottomGap}px`, // Use gap value for top padding to match top spacing
+            paddingBottom: `${topBottomGap}px`, // Use gap value for bottom padding to match bottom spacing
             alignItems: "center", // Ensure center alignment
             justifyContent: "center", // Maintain horizontal centering
             willChange: "transform" 
@@ -316,10 +308,6 @@ export const TextReveal = () => {
               marginBottom: "0", // Clear any margin
             });
           }
-          // Calculate spacing when entering - ensures accurate measurement
-          setTimeout(() => {
-            calculateSpacing();
-          }, 100);
           // Ensure black background stays solid
           if (backgroundRef.current) {
             gsap.set(backgroundRef.current, { opacity: 1 });
@@ -334,8 +322,8 @@ export const TextReveal = () => {
             top: `${gap}px`, 
             height: `calc(100vh - ${gap}px)`,
             minHeight: `calc(100vh - ${gap}px)`,
-            paddingTop: "2rem", // Consistent top padding
-            paddingBottom: "2rem", // Consistent bottom padding
+            paddingTop: `${topBottomGap}px`, // Use gap value for top padding
+            paddingBottom: `${topBottomGap}px`, // Use gap value for bottom padding
             alignItems: "center", // Ensure center alignment
             justifyContent: "center", // Maintain horizontal centering
             willChange: "transform" 
@@ -348,10 +336,6 @@ export const TextReveal = () => {
               marginBottom: "0", // Clear any margin
             });
           }
-          // Recalculate spacing when entering back (for future use)
-          setTimeout(() => {
-            calculateSpacing();
-          }, 100);
           // Ensure black background stays solid
           if (backgroundRef.current) {
             gsap.set(backgroundRef.current, { opacity: 1 });
@@ -361,32 +345,27 @@ export const TextReveal = () => {
           }
         },
         onLeave: () => {
-          // Pin releases - maintain exact same visual position
-          // Recalculate spacing to ensure accuracy (text might have changed)
-          calculateSpacing();
-          
-          // Use requestAnimationFrame to ensure DOM is ready
-          requestAnimationFrame(() => {
-            // Maintain container height
-            gsap.set(sticky, {
-              willChange: "auto",
-              height: `calc(100vh - ${gap}px)`, // Maintain same height
-              minHeight: `calc(100vh - ${gap}px)`, // Maintain same min-height
-              paddingTop: "0", // Remove padding - use margin on text instead
-              paddingBottom: "0", // Remove padding - use margin on text instead
-              alignItems: "flex-start", // Use flex-start to control exact position
-              justifyContent: "center", // Maintain horizontal centering
-            });
-            
-            // Position text with equal top and bottom margins using stored spacing
-            if (textElement && equalSpacing > 0) {
-              gsap.set(textElement, {
-                minHeight: "auto", // Remove full height constraint
-                marginTop: `${equalSpacing}px`, // Equal spacing from top
-                marginBottom: `${equalSpacing}px`, // Equal spacing from bottom
-              });
-            }
+          // Pin releases - maintain exact same visual position with equal top and bottom gaps
+          // Use synchronous update to prevent jump
+          gsap.set(sticky, {
+            willChange: "auto",
+            height: `calc(100vh - ${gap}px)`, // Maintain same height
+            minHeight: `calc(100vh - ${gap}px)`, // Maintain same min-height
+            paddingTop: `${topBottomGap}px`, // Keep same top padding to match top gap
+            paddingBottom: `${topBottomGap}px`, // Keep same bottom padding to match bottom gap
+            alignItems: "flex-start", // Use flex-start to control exact position
+            justifyContent: "center", // Maintain horizontal centering
           });
+          
+          // Position text with equal top and bottom margins matching the gap
+          if (textElement) {
+            gsap.set(textElement, {
+              minHeight: "auto", // Remove full height constraint
+              marginTop: `${topBottomGap}px`, // Equal spacing from top matching the gap
+              marginBottom: `${topBottomGap}px`, // Equal spacing from bottom matching the gap
+            });
+          }
+          
           // Ensure black background extends to cover any remaining space
           if (backgroundRef.current) {
             gsap.set(backgroundRef.current, { 
@@ -409,8 +388,8 @@ export const TextReveal = () => {
             top: `${gap}px`,
             height: `calc(100vh - ${gap}px)`, // Maintain height
             minHeight: `calc(100vh - ${gap}px)`, // Maintain min-height
-            paddingTop: "2rem", // Reset to padding for centered state
-            paddingBottom: "2rem", // Reset to padding for centered state
+            paddingTop: `${topBottomGap}px`, // Reset to gap value for top padding
+            paddingBottom: `${topBottomGap}px`, // Reset to gap value for bottom padding
             alignItems: "center", // Reset to center alignment
             justifyContent: "center", // Maintain horizontal centering
           });

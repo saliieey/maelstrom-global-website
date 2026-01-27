@@ -89,18 +89,19 @@ const NumberReel = ({
   numbersRef,
 }: {
   stats: StatItem[];
-  reelRef: React.RefObject<HTMLDivElement |  null>;
+  reelRef: React.RefObject<HTMLDivElement | null>;
   numbersRef: React.RefObject<HTMLDivElement[] | null>;
 }) => {
   return (
-    <div className="relative w-full max-w-[400px] md:max-w-[500px] lg:max-w-[600px] mx-auto">
-      {/* Orange Pill Container */}
+    <div className="relative w-full max-w-[560px] md:max-w-[720px] lg:max-w-[840px] mx-auto">
+      {/* Orange Capsule Container */}
       <div
-        className="relative w-full rounded-[60px] md:rounded-[80px] lg:rounded-[100px] overflow-hidden"
+        className="relative w-full rounded-[999px] overflow-hidden"
         style={{
-          aspectRatio: "2.5 / 1",
+          aspectRatio: "2.7 / 1",
           background: "linear-gradient(135deg, #ff6b35 0%, #ff4a16 100%)",
-          boxShadow: "0 20px 60px rgba(255, 107, 53, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1), inset 0 1px 0 0 rgba(255, 255, 255, 0.2)",
+          boxShadow:
+            "0 30px 70px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.06)",
         }}
       >
         {/* Reel Container with Mask */}
@@ -108,19 +109,12 @@ const NumberReel = ({
           ref={reelRef}
           className="absolute inset-0 flex items-center justify-center overflow-hidden"
           style={{
-            maskImage: "linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%)",
-            WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%)",
+            maskImage:
+              "linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)",
+            WebkitMaskImage:
+              "linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)",
           }}
         >
-          {/* Center indicator line - subtle accent */}
-          <div
-            className="absolute left-0 right-0 h-px bg-white/30 z-10"
-            style={{
-              top: "50%",
-              transform: "translateY(-50%)",
-            }}
-          />
-          
           {/* Numbers Stack */}
           <div
             className="flex flex-col items-center justify-center"
@@ -137,13 +131,13 @@ const NumberReel = ({
                     numbersRef.current[index] = el;
                   }
                 }}
-                className="text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-bold text-white font-mono leading-none select-none"
+                className="font-semibold leading-none select-none text-white tracking-tight"
                 style={{
-                  height: "120px",
+                  height: "clamp(120px, 18vw, 220px)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  minHeight: "120px",
+                  fontSize: "clamp(72px, 12vw, 168px)",
                 }}
               >
                 {stat.value}
@@ -163,49 +157,26 @@ const NumberReel = ({
 const LeftTextContent = ({
   stats,
   activeIndex,
-  leftTextRefs,
+  countRef,
 }: {
   stats: StatItem[];
   activeIndex: number;
-  leftTextRefs: React.RefObject<HTMLDivElement[]>;
+  countRef: React.RefObject<HTMLSpanElement | null>;
 }) => {
   return (
-    <div className="relative w-full h-full" style={{ minHeight: "200px" }}>
-      {stats.map((stat, index) => (
-        <div
-          key={stat.id}
-          ref={(el) => {
-            if (el && leftTextRefs.current) {
-              leftTextRefs.current[index] = el;
-            }
-          }}
-          className="absolute inset-0 w-full flex flex-col justify-center items-center md:items-start opacity-0 pointer-events-none"
-          style={{
-            zIndex: index,
-            visibility: index === 0 ? "visible" : "hidden",
-          }}
-        >
-          {/* Impact Highlights Label */}
-          <div className="text-xs md:text-sm uppercase tracking-wider text-white/60 mb-4 md:mb-6 font-medium text-center md:text-left">
-            Impact Highlights
-          </div>
-          
-          {/* Progress Indicator */}
-          <div className="flex items-center justify-center md:justify-start gap-3">
-            <div className="text-sm md:text-base text-white/80 font-mono">
-              {String(index + 1).padStart(2, "0")} • {String(stats.length).padStart(2, "0")}
-            </div>
-            <div className="h-px bg-white/20 w-16 md:w-24">
-              <div
-                className="h-full bg-[#ff6b35] transition-all duration-500"
-                style={{
-                  width: `${((index + 1) / stats.length) * 100}%`,
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      ))}
+    <div className="flex w-full flex-col items-center justify-center md:items-start">
+      <div className="text-xs md:text-sm uppercase tracking-wider text-[#ff6b35] font-medium text-center md:text-left">
+        Impact Highlights
+      </div>
+      <div className="mt-3 flex items-center gap-3 text-sm md:text-base text-white/90 font-medium tracking-[0.2em]">
+        <span ref={countRef} className="inline-block">
+          {String(activeIndex + 1).padStart(2, "0")}
+        </span>
+        <span className="text-white/50">•</span>
+        <span className="text-white/70">
+          {String(stats.length).padStart(2, "0")}
+        </span>
+      </div>
     </div>
   );
 };
@@ -216,11 +187,9 @@ const LeftTextContent = ({
  */
 const RightTextContent = ({
   stats,
-  activeIndex,
   rightTextRefs,
 }: {
   stats: StatItem[];
-  activeIndex: number;
   rightTextRefs: React.RefObject<HTMLDivElement[]>;
 }) => {
   return (
@@ -239,11 +208,6 @@ const RightTextContent = ({
             visibility: index === 0 ? "visible" : "hidden",
           }}
         >
-          {/* Label */}
-          <div className="text-sm md:text-base lg:text-lg uppercase tracking-wider text-[#ff6b35] mb-3 md:mb-4 font-semibold text-center md:text-right">
-            {stat.label}
-          </div>
-          
           {/* Description */}
           <div className="text-base md:text-lg lg:text-xl text-white/90 leading-relaxed max-w-md text-center md:text-right">
             {stat.desc}
@@ -263,8 +227,8 @@ export const StatsScroll = () => {
   const stickyRef = useRef<HTMLDivElement>(null);
   const reelRef = useRef<HTMLDivElement>(null);
   const numbersRef = useRef<HTMLDivElement[]>([]);
-  const leftTextRefs = useRef<HTMLDivElement[]>([]);
   const rightTextRefs = useRef<HTMLDivElement[]>([]);
+  const leftCountRef = useRef<HTMLSpanElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollTriggersRef = useRef<ScrollTrigger[]>([]);
 
@@ -276,10 +240,9 @@ export const StatsScroll = () => {
     const sticky = stickyRef.current;
     const reel = reelRef.current;
     const numbers = numbersRef.current.filter(Boolean);
-    const leftTexts = leftTextRefs.current.filter(Boolean);
     const rightTexts = rightTextRefs.current.filter(Boolean);
 
-    if (!container || !sticky || !reel || numbers.length === 0 || leftTexts.length === 0 || rightTexts.length === 0) return;
+    if (!container || !sticky || !reel || numbers.length === 0 || rightTexts.length === 0) return;
 
     const mm = gsap.matchMedia();
 
@@ -288,45 +251,23 @@ export const StatsScroll = () => {
       const gap = 96; // Navbar gap
       // Reduce scroll distance to allow natural scroll transition after animation completes
       // Animation completes at 75%, so we end pin at ~80% to allow smooth natural scroll
-      const scrollDistance = "+=280%"; // 2.8x viewport height - allows natural scroll after animation
+      const scrollDistance = "+=320%"; // 3.2x viewport height for smoother transitions
 
-      // Calculate the height of each number (120px)
-      const numberHeight = 120;
-      const totalHeight = STATS.length * numberHeight;
+      // Calculate the height of each number based on actual layout
+      const numberHeight = numbers[0]?.getBoundingClientRect().height || 120;
+
+      const reelContainer = reel.querySelector('[data-reel-container="true"]') as HTMLElement;
+      const baseOffset = ((STATS.length - 1) * numberHeight) / 2;
 
       // Set initial position - first number centered
-      const reelContainer = reel.querySelector('[data-reel-container="true"]') as HTMLElement;
       if (reelContainer) {
         gsap.set(reelContainer, {
-          y: 0,
+          y: baseOffset,
           force3D: true,
         });
       }
 
       // Set initial text states - all hidden except first
-      leftTexts.forEach((text, idx) => {
-        if (!text) return;
-        if (idx === 0) {
-          // First text - visible
-          gsap.set(text, {
-            autoAlpha: 1,
-            y: 0,
-            x: 0,
-            pointerEvents: "auto",
-            visibility: "visible",
-          });
-        } else {
-          // All other texts - completely hidden
-          gsap.set(text, {
-            autoAlpha: 0,
-            y: 20,
-            x: 0,
-            pointerEvents: "none",
-            visibility: "hidden",
-          });
-        }
-      });
-
       rightTexts.forEach((text, idx) => {
         if (!text) return;
         if (idx === 0) {
@@ -401,7 +342,7 @@ export const StatsScroll = () => {
           trigger: container,
           start: `top-=${gap} top`,
           end: scrollDistance,
-          scrub: 1,
+          scrub: 1.2,
           anticipatePin: 1,
           invalidateOnRefresh: true,
         },
@@ -410,56 +351,53 @@ export const StatsScroll = () => {
         scrollTriggersRef.current.push(tl.scrollTrigger);
       }
 
-      // Animate reel movement - simple and smooth like TextReveal
+      // Animate reel movement - keep in sync with text and count
       const reelContainerEl = reel.querySelector('[data-reel-container="true"]') as HTMLElement;
       
       if (reelContainerEl) {
+        const reelEnd = 0.9;
         // Calculate final position (last number centered)
         const lastIndex = STATS.length - 1;
-        const finalY = -(lastIndex * numberHeight);
+        const finalY = baseOffset - lastIndex * numberHeight;
 
-        // Animation completes at ~70% of timeline, allowing natural scroll transition
+        // Animation completes before the end to allow a short hold
         tl.to(reelContainerEl, {
           y: finalY,
           ease: "none",
           force3D: true,
-          duration: 0.7, // Complete at 70% of scroll, leaving room for natural scroll
+          duration: reelEnd,
         }, 0);
 
-        // Hold the final position from 75% to 100% (smooth transition period)
-        tl.set(reelContainerEl, {
-          y: finalY,
-        }, 0.75);
+        // Extend timeline slightly to hold the final state
+        tl.to({}, { duration: 1 - reelEnd });
       }
 
       // Animate text transitions - clean cross-fade with NO overlap
-      // Text animations complete at ~70% to allow natural scroll transition
-      const textAnimationEnd = 0.7;
-      const fadeDuration = 0.15; // Duration for fade out/in
+      // Text animations complete just before the end to allow a short hold
+      const textAnimationEnd = 0.9;
+      const fadeDuration = 0.16; // Duration for fade out/in
+      const textStep = textAnimationEnd / (STATS.length - 1);
       
       STATS.forEach((stat, index) => {
         if (index === 0) return; // First text is already visible
 
-        const leftTextElement = leftTexts[index];
         const rightTextElement = rightTexts[index];
-        const prevLeftText = leftTexts[index - 1];
         const prevRightText = rightTexts[index - 1];
 
-        if (!leftTextElement || !rightTextElement || !prevLeftText || !prevRightText) return;
+        if (!rightTextElement || !prevRightText) return;
 
         // Calculate transition point - each stat gets equal time
-        const transitionPoint = (index / STATS.length) * textAnimationEnd;
+        const transitionPoint = textStep * index;
         const fadeOutStart = transitionPoint - fadeDuration; // Start fade out
         const fadeOutEnd = transitionPoint; // Complete fade out (old text 100% gone)
         const fadeInStart = transitionPoint; // Start fade in (new text appears)
-        const fadeInEnd = transitionPoint + fadeDuration; // Complete fade in
 
         // STEP 1: Fade out previous text completely (old text disappears)
         tl.to(
-          [prevLeftText, prevRightText],
+          prevRightText,
           {
             autoAlpha: 0,
-            y: -20,
+            y: -12,
             duration: fadeDuration,
             ease: "power2.in",
             force3D: true,
@@ -469,10 +407,10 @@ export const StatsScroll = () => {
 
         // STEP 2: Ensure previous text is 100% hidden and disabled BEFORE new text appears
         tl.set(
-          [prevLeftText, prevRightText],
+          prevRightText,
           {
             autoAlpha: 0,
-            y: -20,
+            y: -12,
             pointerEvents: "none",
             visibility: "hidden", // Completely remove from rendering
           },
@@ -481,10 +419,10 @@ export const StatsScroll = () => {
 
         // STEP 3: Set new text initial state (ready to fade in, but still hidden)
         tl.set(
-          [leftTextElement, rightTextElement],
+          rightTextElement,
           {
             autoAlpha: 0,
-            y: 20,
+            y: 12,
             pointerEvents: "none",
             visibility: "visible", // Make it renderable but transparent
           },
@@ -493,7 +431,7 @@ export const StatsScroll = () => {
 
         // STEP 4: Fade in new text smoothly (new text appears)
         tl.to(
-          [leftTextElement, rightTextElement],
+          rightTextElement,
           {
             autoAlpha: 1,
             y: 0,
@@ -501,10 +439,6 @@ export const StatsScroll = () => {
             ease: "power2.out",
             force3D: true,
             onStart: () => {
-              // Enable interactions when visible
-              if (leftTextElement) {
-                leftTextElement.style.pointerEvents = "auto";
-              }
               if (rightTextElement) {
                 rightTextElement.style.pointerEvents = "auto";
               }
@@ -514,10 +448,10 @@ export const StatsScroll = () => {
         );
       });
 
-      // Ensure last text stays visible during transition period (70% to end)
+      // Ensure last text stays visible during transition period (end hold)
       const lastIndex = STATS.length - 1;
-      if (leftTexts[lastIndex] && rightTexts[lastIndex]) {
-        tl.set([leftTexts[lastIndex], rightTexts[lastIndex]], {
+      if (rightTexts[lastIndex]) {
+        tl.set(rightTexts[lastIndex], {
           autoAlpha: 1,
           y: 0,
           x: 0,
@@ -526,22 +460,11 @@ export const StatsScroll = () => {
         }, textAnimationEnd);
         
         // Ensure all other texts are completely hidden and disabled
-        leftTexts.forEach((text, idx) => {
-          if (idx !== lastIndex && text) {
-            tl.set(text, {
-              autoAlpha: 0,
-              y: -20,
-              x: 0,
-              pointerEvents: "none",
-              visibility: "hidden",
-            }, textAnimationEnd);
-          }
-        });
         rightTexts.forEach((text, idx) => {
           if (idx !== lastIndex && text) {
             tl.set(text, {
               autoAlpha: 0,
-              y: -20,
+              y: -12,
               x: 0,
               pointerEvents: "none",
               visibility: "hidden",
@@ -557,26 +480,15 @@ export const StatsScroll = () => {
         trigger: container,
         start: `top-=${gap} top`,
         end: scrollDistance,
-        scrub: 1,
+        scrub: 1.2,
         onUpdate: (self) => {
-          const progress = self.progress;
+          if (!reelContainerEl) return;
+          const reelY = Number(gsap.getProperty(reelContainerEl, "y")) || 0;
           const newIndex = Math.min(
-            Math.floor((progress / 0.7) * STATS.length),
+            Math.round((baseOffset - reelY) / numberHeight),
             STATS.length - 1
           );
-          if (newIndex !== activeIndex) {
-            setActiveIndex(newIndex);
-          }
-          
-          // Ensure last number stays centered when scroll completes (after 70%)
-          if (progress >= 0.7 && reelContainerEl) {
-            const lastIndex = STATS.length - 1;
-            const finalY = -(lastIndex * numberHeight);
-            gsap.set(reelContainerEl, {
-              y: finalY,
-              force3D: true,
-            });
-          }
+          setActiveIndex((prev) => (prev === newIndex ? prev : newIndex));
         },
       });
       scrollTriggersRef.current.push(updateTrigger);
@@ -586,44 +498,21 @@ export const StatsScroll = () => {
     mm.add("(max-width: 767px)", () => {
       const gap = 88; // Mobile navbar gap
       // Reduce scroll distance to allow natural scroll transition after animation completes
-      const scrollDistance = "+=360%"; // 3.6x viewport height - allows natural scroll after animation
+      const scrollDistance = "+=400%"; // 4x viewport height for smoother transitions
 
-      const numberHeight = 120;
-      const totalHeight = STATS.length * numberHeight;
+      const numberHeight = numbers[0]?.getBoundingClientRect().height || 120;
 
       // Set initial position
       const reelContainerMobile = reel.querySelector('[data-reel-container="true"]') as HTMLElement;
+      const baseOffset = ((STATS.length - 1) * numberHeight) / 2;
       if (reelContainerMobile) {
         gsap.set(reelContainerMobile, {
-          y: 0,
+          y: baseOffset,
           force3D: true,
         });
       }
 
       // Set initial text states - all hidden except first
-      leftTexts.forEach((text, idx) => {
-        if (!text) return;
-        if (idx === 0) {
-          // First text - visible
-          gsap.set(text, {
-            autoAlpha: 1,
-            y: 0,
-            x: 0,
-            pointerEvents: "auto",
-            visibility: "visible",
-          });
-        } else {
-          // All other texts - completely hidden
-          gsap.set(text, {
-            autoAlpha: 0,
-            y: 20,
-            x: 0,
-            pointerEvents: "none",
-            visibility: "hidden",
-          });
-        }
-      });
-
       rightTexts.forEach((text, idx) => {
         if (!text) return;
         if (idx === 0) {
@@ -698,7 +587,7 @@ export const StatsScroll = () => {
           trigger: container,
           start: `top-=${gap} top`,
           end: scrollDistance,
-          scrub: 1,
+          scrub: 1.2,
           anticipatePin: 1,
           invalidateOnRefresh: true,
         },
@@ -707,50 +596,52 @@ export const StatsScroll = () => {
         scrollTriggersRef.current.push(tl.scrollTrigger);
       }
 
-      // Animate reel movement - simple and smooth (mobile)
+      // Animate reel movement - keep in sync with text and count (mobile)
       const reelContainerMobileEl = reel.querySelector('[data-reel-container="true"]') as HTMLElement;
       
       if (reelContainerMobileEl) {
+        const reelEnd = 0.9;
         // Calculate final position (last number centered)
         const lastIndex = STATS.length - 1;
-        const finalY = -(lastIndex * numberHeight);
+        const finalY = baseOffset - lastIndex * numberHeight;
         
-        // Animation completes at ~70% of timeline, allowing natural scroll transition
+        // Animation completes before the end to allow a short hold
         tl.to(reelContainerMobileEl, {
           y: finalY,
           ease: "none",
           force3D: true,
-          duration: 0.7, // Complete at 70% of scroll, leaving room for natural scroll
+          duration: reelEnd,
         }, 0);
+
+        // Extend timeline slightly to hold the final state
+        tl.to({}, { duration: 1 - reelEnd });
       }
 
       // Animate text transitions for mobile - clean cross-fade with NO overlap
-      const textAnimationEndMobile = 0.7;
-      const fadeDurationMobile = 0.15; // Duration for fade out/in
+      const textAnimationEndMobile = 0.9;
+      const fadeDurationMobile = 0.16; // Duration for fade out/in
+      const textStepMobile = textAnimationEndMobile / (STATS.length - 1);
       
       STATS.forEach((stat, index) => {
         if (index === 0) return; // First text is already visible
 
-        const leftTextElement = leftTexts[index];
         const rightTextElement = rightTexts[index];
-        const prevLeftText = leftTexts[index - 1];
         const prevRightText = rightTexts[index - 1];
 
-        if (!leftTextElement || !rightTextElement || !prevLeftText || !prevRightText) return;
+        if (!rightTextElement || !prevRightText) return;
 
         // Calculate transition point - each stat gets equal time
-        const transitionPoint = (index / STATS.length) * textAnimationEndMobile;
+        const transitionPoint = textStepMobile * index;
         const fadeOutStart = transitionPoint - fadeDurationMobile; // Start fade out
         const fadeOutEnd = transitionPoint; // Complete fade out (old text 100% gone)
         const fadeInStart = transitionPoint; // Start fade in (new text appears)
-        const fadeInEnd = transitionPoint + fadeDurationMobile; // Complete fade in
 
         // STEP 1: Fade out previous text completely (old text disappears)
         tl.to(
-          [prevLeftText, prevRightText],
+          prevRightText,
           {
             autoAlpha: 0,
-            y: -20,
+            y: -12,
             duration: fadeDurationMobile,
             ease: "power2.in",
             force3D: true,
@@ -760,10 +651,10 @@ export const StatsScroll = () => {
 
         // STEP 2: Ensure previous text is 100% hidden and disabled BEFORE new text appears
         tl.set(
-          [prevLeftText, prevRightText],
+          prevRightText,
           {
             autoAlpha: 0,
-            y: -20,
+            y: -12,
             pointerEvents: "none",
             visibility: "hidden", // Completely remove from rendering
           },
@@ -772,10 +663,10 @@ export const StatsScroll = () => {
 
         // STEP 3: Set new text initial state (ready to fade in, but still hidden)
         tl.set(
-          [leftTextElement, rightTextElement],
+          rightTextElement,
           {
             autoAlpha: 0,
-            y: 20,
+            y: 12,
             pointerEvents: "none",
             visibility: "visible", // Make it renderable but transparent
           },
@@ -784,7 +675,7 @@ export const StatsScroll = () => {
 
         // STEP 4: Fade in new text smoothly (new text appears)
         tl.to(
-          [leftTextElement, rightTextElement],
+          rightTextElement,
           {
             autoAlpha: 1,
             y: 0,
@@ -792,10 +683,6 @@ export const StatsScroll = () => {
             ease: "power2.out",
             force3D: true,
             onStart: () => {
-              // Enable interactions when visible
-              if (leftTextElement) {
-                leftTextElement.style.pointerEvents = "auto";
-              }
               if (rightTextElement) {
                 rightTextElement.style.pointerEvents = "auto";
               }
@@ -805,10 +692,10 @@ export const StatsScroll = () => {
         );
       });
 
-      // Ensure last text stays visible during transition period (70% to end)
+      // Ensure last text stays visible during transition period (end hold)
       const lastIndex = STATS.length - 1;
-      if (leftTexts[lastIndex] && rightTexts[lastIndex]) {
-        tl.set([leftTexts[lastIndex], rightTexts[lastIndex]], {
+      if (rightTexts[lastIndex]) {
+        tl.set(rightTexts[lastIndex], {
           autoAlpha: 1,
           y: 0,
           pointerEvents: "auto",
@@ -816,23 +703,13 @@ export const StatsScroll = () => {
         }, textAnimationEndMobile);
         
         // Ensure all other texts are completely hidden and disabled
-        leftTexts.forEach((text, idx) => {
-          if (idx !== lastIndex && text) {
-            tl.set(text, {
-              autoAlpha: 0,
-              pointerEvents: "none",
-              visibility: "hidden",
-              y: -20,
-            }, textAnimationEndMobile);
-          }
-        });
         rightTexts.forEach((text, idx) => {
           if (idx !== lastIndex && text) {
             tl.set(text, {
               autoAlpha: 0,
               pointerEvents: "none",
               visibility: "hidden",
-              y: -20,
+              y: -12,
             }, textAnimationEndMobile);
           }
         });
@@ -845,26 +722,15 @@ export const StatsScroll = () => {
         trigger: container,
         start: `top-=${gap} top`,
         end: scrollDistance,
-        scrub: 1,
+        scrub: 1.2,
         onUpdate: (self) => {
-          const progress = self.progress;
+          if (!reelContainerMobileEl) return;
+          const reelY = Number(gsap.getProperty(reelContainerMobileEl, "y")) || 0;
           const newIndex = Math.min(
-            Math.floor((progress / 0.7) * STATS.length),
+            Math.round((baseOffset - reelY) / numberHeight),
             STATS.length - 1
           );
-          if (newIndex !== activeIndex) {
-            setActiveIndex(newIndex);
-          }
-          
-          // Ensure last number stays centered when scroll completes (after 70%)
-          if (progress >= 0.7 && reelContainerMobileEl) {
-            const lastIndex = STATS.length - 1;
-            const finalY = -(lastIndex * numberHeight);
-            gsap.set(reelContainerMobileEl, {
-              y: finalY,
-              force3D: true,
-            });
-          }
+          setActiveIndex((prev) => (prev === newIndex ? prev : newIndex));
         },
       });
       scrollTriggersRef.current.push(updateTriggerMobile);
@@ -882,6 +748,15 @@ export const StatsScroll = () => {
       scrollTriggersRef.current = [];
       mm.revert();
     };
+  }, []);
+
+  useEffect(() => {
+    if (!leftCountRef.current) return;
+    gsap.fromTo(
+      leftCountRef.current,
+      { autoAlpha: 0, y: 8 },
+      { autoAlpha: 1, y: 0, duration: 0.25, ease: "power2.out" }
+    );
   }, [activeIndex]);
 
   return (
@@ -889,8 +764,8 @@ export const StatsScroll = () => {
       ref={containerRef}
       className="relative w-full bg-[#050505] overflow-hidden"
       style={{
-        height: "360vh", // Match mobile scroll distance (360% for mobile)
-        minHeight: "360vh",
+        height: "400vh", // Extended scroll for smoother transitions
+        minHeight: "400vh",
       }}
     >
       <div
@@ -912,7 +787,7 @@ export const StatsScroll = () => {
               <LeftTextContent
                 stats={STATS}
                 activeIndex={activeIndex}
-                leftTextRefs={leftTextRefs}
+                countRef={leftCountRef}
               />
             </div>
 
@@ -929,7 +804,6 @@ export const StatsScroll = () => {
             <div className="md:col-span-3 flex items-center justify-center md:justify-end order-3">
               <RightTextContent
                 stats={STATS}
-                activeIndex={activeIndex}
                 rightTextRefs={rightTextRefs}
               />
             </div>
