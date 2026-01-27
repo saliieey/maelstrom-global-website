@@ -48,9 +48,7 @@ const STATS: StatItem[] = [
  * Scroll Indicator Component
  * Professional scroll hint at the bottom
  */
-const ScrollIndicator = () => {
-  const indicatorRef = useRef<HTMLDivElement>(null);
-
+const ScrollIndicator = ({ indicatorRef }: { indicatorRef: React.RefObject<HTMLDivElement | null> }) => {
   useEffect(() => {
     if (!indicatorRef.current) return;
 
@@ -62,7 +60,7 @@ const ScrollIndicator = () => {
       repeat: -1,
       yoyo: true,
     });
-  }, []);
+  }, [indicatorRef]);
 
   return (
     <div
@@ -225,6 +223,8 @@ const RightTextContent = ({
 export const StatsScroll = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const stickyRef = useRef<HTMLDivElement>(null);
+  const gridContainerRef = useRef<HTMLDivElement>(null);
+  const scrollIndicatorRef = useRef<HTMLDivElement>(null);
   const reelRef = useRef<HTMLDivElement>(null);
   const numbersRef = useRef<HTMLDivElement[]>([]);
   const rightTextRefs = useRef<HTMLDivElement[]>([]);
@@ -238,20 +238,31 @@ export const StatsScroll = () => {
 
     const container = containerRef.current;
     const sticky = stickyRef.current;
+    const gridContainer = gridContainerRef.current;
     const reel = reelRef.current;
     const numbers = numbersRef.current.filter(Boolean);
     const rightTexts = rightTextRefs.current.filter(Boolean);
 
-    if (!container || !sticky || !reel || numbers.length === 0 || rightTexts.length === 0) return;
+    if (!container || !sticky || !gridContainer || !reel || numbers.length === 0 || rightTexts.length === 0) return;
 
     const mm = gsap.matchMedia();
 
     // Desktop and Tablet (>= 768px)
     mm.add("(min-width: 768px)", () => {
       const gap = 96; // Navbar gap
-      // Reduce scroll distance to allow natural scroll transition after animation completes
-      // Animation completes at 75%, so we end pin at ~80% to allow smooth natural scroll
-      const scrollDistance = "+=320%"; // 3.2x viewport height for smoother transitions
+      // Match TextReveal scroll distance for natural transition
+      const scrollDistance = "+=160%"; // Same as TextReveal for smooth natural scroll
+
+      // Calculate equal spacing for maintaining position when pin releases (like TextReveal)
+      let equalSpacing = 0;
+      const calculateSpacing = () => {
+        if (gridContainer && sticky) {
+          const containerHeight = window.innerHeight - gap;
+          const gridRect = gridContainer.getBoundingClientRect();
+          const gridHeight = gridRect.height;
+          equalSpacing = Math.max(32, (containerHeight - gridHeight) / 2); // Minimum 2rem (32px)
+        }
+      };
 
       // Calculate the height of each number based on actual layout
       const numberHeight = numbers[0]?.getBoundingClientRect().height || 120;
@@ -301,37 +312,126 @@ export const StatsScroll = () => {
         anticipatePin: 1,
         invalidateOnRefresh: true,
         onEnter: () => {
+          // Set exact height for perfect centering (viewport minus navbar gap)
           gsap.set(sticky, {
             top: `${gap}px`,
             height: `calc(100vh - ${gap}px)`,
             minHeight: `calc(100vh - ${gap}px)`,
+            paddingTop: "0", // No padding - grid has its own padding
+            paddingBottom: "0", // No padding - grid has its own padding
+            alignItems: "center", // Ensure center alignment
+            justifyContent: "center", // Maintain horizontal centering
             willChange: "transform",
           });
+          // Reset grid container margins and height (like TextReveal resets text element)
+          if (gridContainer) {
+            gsap.set(gridContainer, {
+              height: "100%", // Reset to full height
+              minHeight: "100%", // Reset min-height
+              marginTop: "0",
+              marginBottom: "0",
+            });
+          }
+          // Calculate spacing when entering
+          setTimeout(() => {
+            calculateSpacing();
+          }, 100);
         },
         onEnterBack: () => {
+          // Set exact height for perfect centering (viewport minus navbar gap)
           gsap.set(sticky, {
             top: `${gap}px`,
             height: `calc(100vh - ${gap}px)`,
             minHeight: `calc(100vh - ${gap}px)`,
+            paddingTop: "0", // No padding - grid has its own padding
+            paddingBottom: "0", // No padding - grid has its own padding
+            alignItems: "center", // Ensure center alignment
+            justifyContent: "center", // Maintain horizontal centering
             willChange: "transform",
           });
+          // Reset grid container margins and height (like TextReveal resets text element)
+          if (gridContainer) {
+            gsap.set(gridContainer, {
+              height: "100%", // Reset to full height
+              minHeight: "100%", // Reset min-height
+              marginTop: "0",
+              marginBottom: "0",
+            });
+          }
+          // Recalculate spacing when entering back
+          setTimeout(() => {
+            calculateSpacing();
+          }, 100);
         },
         onLeave: () => {
-          // Pin releases - allow natural smooth scroll to next section
+          // Pin releases - maintain exact same visual position (like TextReveal)
+          // Recalculate spacing to ensure accuracy
+          calculateSpacing();
+          
+          // Hide scroll indicator to prevent UI overlap with next section
+          if (scrollIndicatorRef.current) {
+            gsap.to(scrollIndicatorRef.current, {
+              autoAlpha: 0,
+              duration: 0.3,
+              ease: "power2.out",
+            });
+          }
+          
+          // Use requestAnimationFrame to ensure DOM is ready and prevent jumping
+          requestAnimationFrame(() => {
+            // Maintain container height
           gsap.set(sticky, {
             willChange: "auto",
-            clearProps: "transform",
-            position: "relative",
+              height: `calc(100vh - ${gap}px)`, // Maintain same height
+              minHeight: `calc(100vh - ${gap}px)`, // Maintain same min-height
+              paddingTop: "0", // Remove padding - use margin on grid instead
+              paddingBottom: "0", // Remove padding - use margin on grid instead
+              alignItems: "flex-start", // Use flex-start to control exact position
+              justifyContent: "center", // Maintain horizontal centering
+            });
+            
+            // Position grid with equal top and bottom margins using stored spacing
+            // Remove full height constraint (like TextReveal sets minHeight: auto on text element)
+            if (gridContainer && equalSpacing > 0) {
+              gsap.set(gridContainer, {
+                height: "auto", // Remove full height constraint (override h-full class, same as TextReveal sets minHeight: auto)
+                minHeight: "auto", // Remove min-height constraint
+                marginTop: `${equalSpacing}px`, // Equal spacing from top
+                marginBottom: `${equalSpacing}px`, // Equal spacing from bottom
+              });
+            }
           });
         },
         onLeaveBack: () => {
+          // When scrolling back, reset to sticky state (like TextReveal)
           gsap.set(sticky, {
             willChange: "auto",
             position: "sticky",
             top: `${gap}px`,
             height: `calc(100vh - ${gap}px)`,
             minHeight: `calc(100vh - ${gap}px)`,
+            paddingTop: "0", // Reset to no padding
+            paddingBottom: "0", // Reset to no padding
+            alignItems: "center", // Reset to center alignment
+            justifyContent: "center", // Maintain horizontal centering
           });
+          // Reset grid container margins and height (like TextReveal resets text element)
+          if (gridContainer) {
+            gsap.set(gridContainer, {
+              height: "100%", // Reset to full height
+              minHeight: "100%", // Reset min-height
+              marginTop: "0",
+              marginBottom: "0",
+            });
+          }
+          // Show scroll indicator again when scrolling back
+          if (scrollIndicatorRef.current) {
+            gsap.to(scrollIndicatorRef.current, {
+              autoAlpha: 1,
+              duration: 0.3,
+              ease: "power2.out",
+            });
+          }
         },
       });
       scrollTriggersRef.current.push(pinTrigger);
@@ -355,26 +455,24 @@ export const StatsScroll = () => {
       const reelContainerEl = reel.querySelector('[data-reel-container="true"]') as HTMLElement;
       
       if (reelContainerEl) {
-        const reelEnd = 0.9;
+        // Animation completes at ~75% of timeline (like TextReveal)
+        const reelEnd = 0.75;
         // Calculate final position (last number centered)
         const lastIndex = STATS.length - 1;
         const finalY = baseOffset - lastIndex * numberHeight;
 
-        // Animation completes before the end to allow a short hold
+        // Animation completes at 75% to allow natural scroll transition
         tl.to(reelContainerEl, {
           y: finalY,
           ease: "none",
           force3D: true,
           duration: reelEnd,
         }, 0);
-
-        // Extend timeline slightly to hold the final state
-        tl.to({}, { duration: 1 - reelEnd });
       }
 
       // Animate text transitions - clean cross-fade with NO overlap
-      // Text animations complete just before the end to allow a short hold
-      const textAnimationEnd = 0.9;
+      // Text animations complete at ~75% of timeline (like TextReveal)
+      const textAnimationEnd = 0.75;
       const fadeDuration = 0.16; // Duration for fade out/in
       const textStep = textAnimationEnd / (STATS.length - 1);
       
@@ -497,8 +595,19 @@ export const StatsScroll = () => {
     // Mobile (< 768px)
     mm.add("(max-width: 767px)", () => {
       const gap = 88; // Mobile navbar gap
-      // Reduce scroll distance to allow natural scroll transition after animation completes
-      const scrollDistance = "+=400%"; // 4x viewport height for smoother transitions
+      // Match TextReveal scroll distance for natural transition
+      const scrollDistance = "+=157%"; // Same as TextReveal for smooth natural scroll
+
+      // Calculate equal spacing for maintaining position when pin releases (like TextReveal)
+      let equalSpacingMobile = 0;
+      const calculateSpacingMobile = () => {
+        if (gridContainer && sticky) {
+          const containerHeight = window.innerHeight - gap;
+          const gridRect = gridContainer.getBoundingClientRect();
+          const gridHeight = gridRect.height;
+          equalSpacingMobile = Math.max(32, (containerHeight - gridHeight) / 2); // Minimum 2rem (32px)
+        }
+      };
 
       const numberHeight = numbers[0]?.getBoundingClientRect().height || 120;
 
@@ -546,37 +655,126 @@ export const StatsScroll = () => {
         anticipatePin: 1,
         invalidateOnRefresh: true,
         onEnter: () => {
+          // Set exact height for perfect centering (viewport minus navbar gap)
           gsap.set(sticky, {
             top: `${gap}px`,
             height: `calc(100vh - ${gap}px)`,
             minHeight: `calc(100vh - ${gap}px)`,
+            paddingTop: "0", // No padding - grid has its own padding
+            paddingBottom: "0", // No padding - grid has its own padding
+            alignItems: "center", // Ensure center alignment
+            justifyContent: "center", // Maintain horizontal centering
             willChange: "transform",
           });
+          // Reset grid container margins and height (like TextReveal resets text element)
+          if (gridContainer) {
+            gsap.set(gridContainer, {
+              height: "100%", // Reset to full height
+              minHeight: "100%", // Reset min-height
+              marginTop: "0",
+              marginBottom: "0",
+            });
+          }
+          // Calculate spacing when entering
+          setTimeout(() => {
+            calculateSpacingMobile();
+          }, 100);
         },
         onEnterBack: () => {
+          // Set exact height for perfect centering (viewport minus navbar gap)
           gsap.set(sticky, {
             top: `${gap}px`,
             height: `calc(100vh - ${gap}px)`,
             minHeight: `calc(100vh - ${gap}px)`,
+            paddingTop: "0", // No padding - grid has its own padding
+            paddingBottom: "0", // No padding - grid has its own padding
+            alignItems: "center", // Ensure center alignment
+            justifyContent: "center", // Maintain horizontal centering
             willChange: "transform",
           });
+          // Reset grid container margins and height (like TextReveal resets text element)
+          if (gridContainer) {
+            gsap.set(gridContainer, {
+              height: "100%", // Reset to full height
+              minHeight: "100%", // Reset min-height
+              marginTop: "0",
+              marginBottom: "0",
+            });
+          }
+          // Recalculate spacing when entering back
+          setTimeout(() => {
+            calculateSpacingMobile();
+          }, 100);
         },
         onLeave: () => {
-          // Pin releases - allow natural smooth scroll to next section
+          // Pin releases - maintain exact same visual position (like TextReveal)
+          // Recalculate spacing to ensure accuracy
+          calculateSpacingMobile();
+          
+          // Hide scroll indicator to prevent UI overlap with next section
+          if (scrollIndicatorRef.current) {
+            gsap.to(scrollIndicatorRef.current, {
+              autoAlpha: 0,
+              duration: 0.3,
+              ease: "power2.out",
+            });
+          }
+          
+          // Use requestAnimationFrame to ensure DOM is ready and prevent jumping
+          requestAnimationFrame(() => {
+            // Maintain container height
           gsap.set(sticky, {
             willChange: "auto",
-            clearProps: "transform",
-            position: "relative",
+              height: `calc(100vh - ${gap}px)`, // Maintain same height
+              minHeight: `calc(100vh - ${gap}px)`, // Maintain same min-height
+              paddingTop: "0", // Remove padding - use margin on grid instead
+              paddingBottom: "0", // Remove padding - use margin on grid instead
+              alignItems: "flex-start", // Use flex-start to control exact position
+              justifyContent: "center", // Maintain horizontal centering
+            });
+            
+            // Position grid with equal top and bottom margins using stored spacing
+            // Remove full height constraint (like TextReveal sets minHeight: auto on text element)
+            if (gridContainer && equalSpacingMobile > 0) {
+              gsap.set(gridContainer, {
+                height: "auto", // Remove full height constraint (override h-full class, same as TextReveal sets minHeight: auto)
+                minHeight: "auto", // Remove min-height constraint
+                marginTop: `${equalSpacingMobile}px`, // Equal spacing from top
+                marginBottom: `${equalSpacingMobile}px`, // Equal spacing from bottom
+              });
+            }
           });
         },
         onLeaveBack: () => {
+          // When scrolling back, reset to sticky state (like TextReveal)
           gsap.set(sticky, {
             willChange: "auto",
             position: "sticky",
             top: `${gap}px`,
             height: `calc(100vh - ${gap}px)`,
             minHeight: `calc(100vh - ${gap}px)`,
+            paddingTop: "0", // Reset to no padding
+            paddingBottom: "0", // Reset to no padding
+            alignItems: "center", // Reset to center alignment
+            justifyContent: "center", // Maintain horizontal centering
           });
+          // Reset grid container margins and height (like TextReveal resets text element)
+          if (gridContainer) {
+            gsap.set(gridContainer, {
+              height: "100%", // Reset to full height
+              minHeight: "100%", // Reset min-height
+              marginTop: "0",
+              marginBottom: "0",
+            });
+          }
+          // Show scroll indicator again when scrolling back
+          if (scrollIndicatorRef.current) {
+            gsap.to(scrollIndicatorRef.current, {
+              autoAlpha: 1,
+              duration: 0.3,
+              ease: "power2.out",
+            });
+          }
         },
       });
       scrollTriggersRef.current.push(pinTriggerMobile);
@@ -600,25 +798,24 @@ export const StatsScroll = () => {
       const reelContainerMobileEl = reel.querySelector('[data-reel-container="true"]') as HTMLElement;
       
       if (reelContainerMobileEl) {
-        const reelEnd = 0.9;
+        // Animation completes at ~70% of timeline (like TextReveal mobile)
+        const reelEnd = 0.7;
         // Calculate final position (last number centered)
         const lastIndex = STATS.length - 1;
         const finalY = baseOffset - lastIndex * numberHeight;
         
-        // Animation completes before the end to allow a short hold
+        // Animation completes at 70% to allow natural scroll transition
         tl.to(reelContainerMobileEl, {
           y: finalY,
           ease: "none",
           force3D: true,
           duration: reelEnd,
         }, 0);
-
-        // Extend timeline slightly to hold the final state
-        tl.to({}, { duration: 1 - reelEnd });
       }
 
       // Animate text transitions for mobile - clean cross-fade with NO overlap
-      const textAnimationEndMobile = 0.9;
+      // Text animations complete at ~70% of timeline (like TextReveal mobile)
+      const textAnimationEndMobile = 0.7;
       const fadeDurationMobile = 0.16; // Duration for fade out/in
       const textStepMobile = textAnimationEndMobile / (STATS.length - 1);
       
@@ -764,8 +961,8 @@ export const StatsScroll = () => {
       ref={containerRef}
       className="relative w-full bg-[#050505] overflow-hidden"
       style={{
-        height: "400vh", // Extended scroll for smoother transitions
-        minHeight: "400vh",
+        height: "250vh", // Match TextReveal height for natural scroll transition
+        minHeight: "250vh",
       }}
     >
       <div
@@ -781,7 +978,10 @@ export const StatsScroll = () => {
         {/* Full width container - no side padding */}
         <div className="h-full relative w-full max-w-[1920px] mx-auto">
           {/* Main Content Grid - Full width with internal spacing only */}
-          <div className="h-full grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 lg:gap-16 py-12 md:py-16 px-8 md:px-12 lg:px-16 xl:px-20">
+          <div 
+            ref={gridContainerRef}
+            className="h-full grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 lg:gap-16 py-12 md:py-16 px-8 md:px-12 lg:px-16 xl:px-20"
+          >
             {/* Left Column - Label & Progress (Desktop) / Top (Mobile) */}
             <div className="md:col-span-3 flex items-center justify-center md:justify-start">
               <LeftTextContent
@@ -810,7 +1010,7 @@ export const StatsScroll = () => {
           </div>
 
           {/* Scroll Indicator */}
-          <ScrollIndicator />
+          <ScrollIndicator indicatorRef={scrollIndicatorRef} />
         </div>
       </div>
     </div>
