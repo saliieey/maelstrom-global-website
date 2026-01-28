@@ -21,6 +21,7 @@ interface PortfolioItem {
 export const PortfolioGrid = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const itemsRef = useRef<HTMLDivElement[]>([]);
+  const scrollTriggersRef = useRef<ScrollTrigger[]>([]);
 
   // Portfolio items organized by rows to match reference layout exactly
   // Reference shows: Top row (1:1, 9:16, 9:16, 16:9), Middle row (16:9, 4:5, 9:16, 4:5), Bottom row (1:1, 1:1, 16:9)
@@ -108,7 +109,7 @@ export const PortfolioGrid = () => {
         y: 50,
       });
 
-      ScrollTrigger.create({
+      const trigger = ScrollTrigger.create({
         trigger: container,
         start: "top 85%",
         onEnter: () => {
@@ -123,6 +124,7 @@ export const PortfolioGrid = () => {
         },
         once: true,
       });
+      scrollTriggersRef.current.push(trigger);
     });
 
     // Mobile (< 768px)
@@ -132,7 +134,7 @@ export const PortfolioGrid = () => {
         y: 30,
       });
 
-      ScrollTrigger.create({
+      const trigger = ScrollTrigger.create({
         trigger: container,
         start: "top 85%",
         onEnter: () => {
@@ -147,12 +149,19 @@ export const PortfolioGrid = () => {
         },
         once: true,
       });
+      scrollTriggersRef.current.push(trigger);
     });
 
     ScrollTrigger.refresh();
 
     return () => {
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+      // Only kill ScrollTriggers created by this component
+      scrollTriggersRef.current.forEach((trigger) => {
+        if (trigger) {
+          trigger.kill();
+        }
+      });
+      scrollTriggersRef.current = [];
       mm.revert();
     };
   }, []);
@@ -204,55 +213,50 @@ export const PortfolioGrid = () => {
     };
   }, []);
 
-  // Combine all items for mobile masonry layout
+  // Combine all items for mobile - use same items as desktop
+  // Arrange items in a masonry pattern matching the reference gallery layout
+  // Pattern: 16:9 (full width), then pairs of items side-by-side
   const allItems = [...topRow, ...middleRow, ...bottomRow];
   
-  // Get unique items by aspect ratio for mobile
-  const item16_9 = allItems.find(i => i.aspectRatio === "16:9")!;
-  const item1_1 = allItems.find(i => i.aspectRatio === "1:1")!;
-  const item9_16 = allItems.find(i => i.aspectRatio === "9:16")!;
-  const item4_5 = allItems.find(i => i.aspectRatio === "4:5")!;
+  // Reorder items for mobile masonry layout to match reference gallery pattern
+  // Extract items by type
+  const items16_9 = allItems.filter(item => item.aspectRatio === "16:9");
+  const items1_1 = allItems.filter(item => item.aspectRatio === "1:1");
+  const items9_16 = allItems.filter(item => item.aspectRatio === "9:16");
+  const items4_5 = allItems.filter(item => item.aspectRatio === "4:5");
   
-  // Create mobile-specific items with duplicates for varied masonry patterns
-  // Professional balanced layout: All gaps filled perfectly
-  const mobileItems: PortfolioItem[] = [
-    // Row 1: 16:9 full width (landscape banner)
-    { ...item16_9, id: "mobile-1", aspectRatio: "16:9" },
-    // Row 2: Two 1:1 squares side by side
-    { ...item1_1, id: "mobile-2", aspectRatio: "1:1" },
-    { ...item1_1, id: "mobile-3", aspectRatio: "1:1" },
-    // Row 3: Two 9:16 side by side
-    { ...item9_16, id: "mobile-4", aspectRatio: "9:16" },
-    { ...item9_16, id: "mobile-5", aspectRatio: "9:16" },
-    // Row 4: Two 4:5 side by side
-    { ...item4_5, id: "mobile-6", aspectRatio: "4:5" },
-    { ...item4_5, id: "mobile-7", aspectRatio: "4:5" },
-    // Row 5: 16:9 full width
-    { ...item16_9, id: "mobile-8", aspectRatio: "16:9" },
-    // Row 6: Two 1:1 squares side by side (replaced 9:16 with 1:1 to fill gap)
-    { ...item1_1, id: "mobile-9", aspectRatio: "1:1" },
-    { ...item1_1, id: "mobile-10", aspectRatio: "1:1" },
-    // Row 7: Two 9:16 side by side
-    { ...item9_16, id: "mobile-11", aspectRatio: "9:16" },
-    { ...item9_16, id: "mobile-12", aspectRatio: "9:16" },
-    // Row 8: 4:5 and 4:5 side by side (replaced 1:1 with 4:5 to fill gap)
-    { ...item4_5, id: "mobile-13", aspectRatio: "4:5" },
-    { ...item4_5, id: "mobile-14", aspectRatio: "4:5" },
-    // Row 9: 16:9 full width
-    { ...item16_9, id: "mobile-15", aspectRatio: "16:9" },
-    // Row 10: Two 9:16 side by side
-    { ...item9_16, id: "mobile-16", aspectRatio: "9:16" },
-    { ...item9_16, id: "mobile-17", aspectRatio: "9:16" },
-    // Row 11: Two 1:1 squares side by side
-    { ...item1_1, id: "mobile-18", aspectRatio: "1:1" },
-    { ...item1_1, id: "mobile-19", aspectRatio: "1:1" },
-  ];
-
-  // No aspect ratio classes - rows will have fixed heights instead
+  // Create mobile layout pattern matching reference gallery (3-column layout):
+  // Pattern: 16:9 (full width spans 3 cols), then 3 items per row
+  // Add duplicates on mobile only to fill gaps
+  const mobileItems: PortfolioItem[] = [];
+  
+  // Row 1: 16:9 full width (spans all 3 columns)
+  if (items16_9.length > 0) mobileItems.push(items16_9[0]);
+  
+  // Row 2: Three 1:1 squares (3 items per row)
+  items1_1.forEach(item => mobileItems.push(item));
+  
+  // Row 3: Three 9:16 portraits (3 items per row)
+  items9_16.forEach(item => mobileItems.push(item));
+  
+  // Row 4: Three 4:5 items (add duplicate to fill gap - mobile only)
+  items4_5.forEach(item => mobileItems.push(item));
+  // Add duplicate of first 4:5 item to fill the third column
+  if (items4_5.length > 0) {
+    mobileItems.push({ ...items4_5[0], id: `${items4_5[0].id}-mobile-duplicate` });
+  }
+  
+  // Row 5: 16:9 full width (spans all 3 columns)
+  if (items16_9.length > 1) mobileItems.push(items16_9[1]);
+  
+  // Row 6: Remaining items continue in 3-column pattern
+  // Any remaining 16:9 items
+  for (let i = 2; i < items16_9.length; i++) {
+    mobileItems.push(items16_9[i]);
+  }
 
   let itemIndex = 0;
-  // Mobile items start after all desktop items (11 desktop items total)
-  let mobileItemIndex = topRow.length + middleRow.length + bottomRow.length;
+  let mobileItemIndex = allItems.length; // Mobile items start after desktop items
 
   return (
     <section
@@ -262,6 +266,7 @@ export const PortfolioGrid = () => {
         position: "relative",
         paddingLeft: "1rem",
         paddingRight: "1rem",
+        contain: "layout style",
       }}
     >
       {/* Mobile-specific styles - only applies below 768px */}
@@ -277,9 +282,9 @@ export const PortfolioGrid = () => {
             }
             .portfolio-grid-container-mobile {
               display: grid !important;
-              grid-template-columns: repeat(2, 1fr) !important;
+              grid-template-columns: repeat(3, 1fr) !important;
               grid-auto-flow: dense !important;
-              gap: 0.5rem !important;
+              gap: 0 !important;
               width: 100% !important;
               margin-left: 0 !important;
               margin-right: 0 !important;
@@ -338,7 +343,7 @@ export const PortfolioGrid = () => {
           
           return (
             <div
-              key={item.id}
+              key={`mobile-${item.id}`}
               ref={(el) => {
                 if (el) itemsRef.current[index] = el;
               }}
@@ -358,11 +363,6 @@ export const PortfolioGrid = () => {
                   }}
                   loading="lazy"
                 />
-              </div>
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <span className="text-white text-lg font-bold opacity-90">
-                  {item.aspectRatio}
-                </span>
               </div>
             </div>
           );
@@ -452,11 +452,6 @@ export const PortfolioGrid = () => {
                     loading="lazy"
                   />
                 </div>
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <span className="text-white text-xl md:text-4xl lg:text-5xl font-bold opacity-90">
-                    {item.aspectRatio}
-                  </span>
-                </div>
               </div>
             );
           })}
@@ -538,11 +533,6 @@ export const PortfolioGrid = () => {
                     loading="lazy"
                   />
                 </div>
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <span className="text-white text-xl md:text-4xl lg:text-5xl font-bold opacity-90">
-                    {item.aspectRatio}
-                  </span>
-                </div>
               </div>
             );
           })}
@@ -618,11 +608,6 @@ export const PortfolioGrid = () => {
                     }}
                     loading="lazy"
                   />
-                </div>
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <span className="text-white text-xl md:text-4xl lg:text-5xl font-bold opacity-90">
-                    {item.aspectRatio}
-                  </span>
                 </div>
               </div>
             );
