@@ -13,6 +13,7 @@ import { PortfolioGrid } from "@/sections/PortfolioGrid";
 import { ServicesExpandable } from "@/sections/ServicesExpandable";
 import { StatsScroll } from "@/sections/StatsScroll";
 import { ClientsSection } from "@/sections/ClientsSection";
+import { OurWorksSection } from "@/sections/OurWorksSection";
 
 export default function Home() {
   return (
@@ -45,6 +46,11 @@ export default function Home() {
       {/* Clients Section - Client logos with hover effects */}
       <div className="relative z-40">
         <ClientsSection />
+      </div>
+      
+      {/* Our Works Section - Featured works showcase */}
+      <div className="relative z-0">
+        <OurWorksSection />
       </div>
       
       {/* Next Section - Flows naturally below hero with proper spacing */}

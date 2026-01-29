@@ -102,7 +102,7 @@ export const navigationItems: NavigationItem[] = [
   },
   {
     label: 'Work',
-    href: '/work',
+    href: '/works',
   },
   {
     label: 'Blog and News',

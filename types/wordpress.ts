@@ -74,3 +74,33 @@ export interface WordPressMedia {
   };
 }
 
+/**
+ * Work Category Types
+ */
+export type WorkCategory = 
+  | "Social Media"
+  | "Performance Marketing"
+  | "SEO"
+  | "Influencer Marketing"
+  | "Web Development & UI/UX"
+  | "Production"
+  | "Branding & Creative";
+
+/**
+ * Work Item Interface
+ */
+export interface WorkItem {
+  id: number;
+  title: string;
+  description: string;
+  category: WorkCategory;
+  image1: string;
+  image2: string;
+  image1Alt?: string;
+  image2Alt?: string;
+  featured: boolean; // For home page highlights
+  order: number; // For sorting
+  slug: string;
+  date?: string;
+}
+

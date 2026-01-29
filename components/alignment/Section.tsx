@@ -6,7 +6,7 @@
  * NO random padding or alignment - always use this component
  */
 
-import { ReactNode } from 'react';
+import { ReactNode, forwardRef, CSSProperties } from 'react';
 import { useResponsive } from '@/hooks/useResponsive';
 
 interface SectionProps {
@@ -18,15 +18,18 @@ interface SectionProps {
   backgroundColor?: string;
   /** Override default padding */
   padding?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
+  /** Inline styles */
+  style?: CSSProperties;
 }
 
-export const Section = ({
+export const Section = forwardRef<HTMLElement, SectionProps>(({
   children,
   className = '',
   id,
   backgroundColor,
   padding = 'md',
-}: SectionProps) => {
+  style,
+}, ref) => {
   const { isMobile, isTablet } = useResponsive();
 
   const paddingClasses = {
@@ -46,14 +49,22 @@ export const Section = ({
     .filter(Boolean)
     .join(' ');
 
+  const sectionStyle = {
+    ...(backgroundColor ? { backgroundColor } : {}),
+    ...style,
+  };
+
   return (
     <section
+      ref={ref}
       id={id}
       className={sectionClasses}
-      style={backgroundColor ? { backgroundColor } : undefined}
+      style={Object.keys(sectionStyle).length > 0 ? sectionStyle : undefined}
     >
       {children}
     </section>
   );
-};
+});
+
+Section.displayName = 'Section';
 
