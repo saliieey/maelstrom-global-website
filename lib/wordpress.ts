@@ -3,7 +3,8 @@
  * This file will contain functions to fetch data from WordPress Headless CMS
  */
 
-const WORDPRESS_API_URL = process.env.WORDPRESS_API_URL;
+// For static export, we need NEXT_PUBLIC_ prefix for client-side access
+const WORDPRESS_API_URL = process.env.NEXT_PUBLIC_WORDPRESS_API_URL || process.env.WORDPRESS_API_URL;
 const WORDPRESS_AUTH_TOKEN = process.env.WORDPRESS_AUTH_TOKEN;
 
 if (!WORDPRESS_API_URL) {

@@ -78,24 +78,25 @@ export const OurWorksSection = () => {
         </div>
 
         {/* Works Grid - 3 columns on desktop, 1 column on mobile - Centered and aligned */}
-        <div className="w-full">
+        <div className="w-full [&>*]:text-left">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-[40px] gap-y-[60px] md:gap-x-[60px] md:gap-y-[80px] lg:gap-x-[80px] lg:gap-y-[100px] w-full max-w-[1400px] mx-auto">
             {works.map((work) => (
               <div
                 key={work.id}
-                className="flex flex-col h-full w-full"
+                className="flex flex-col h-full w-full items-start"
                 style={{ minHeight: 'fit-content' }}
               >
                 {/* Work Image Container - Match Haris&Co exact styling (534.14 x 300.45) */}
-                <div className="relative w-full mb-[10px] overflow-hidden flex items-center justify-center bg-transparent">
+                <div className="relative w-full mb-[10px] overflow-hidden bg-transparent">
                   <img
                     src={work.image1}
                     alt={work.image1Alt || work.title}
-                    className="w-full h-auto object-contain"
+                    className="w-full h-auto object-cover"
                     style={{
                       aspectRatio: '534.14 / 300.45',
-                      maxWidth: '100%',
+                      width: '100%',
                       display: 'block',
+                      objectPosition: 'left top',
                     }}
                     loading="lazy"
                     onError={(e) => {

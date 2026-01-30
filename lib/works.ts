@@ -20,16 +20,91 @@ export const WORK_CATEGORIES: WorkCategory[] = [
 ];
 
 /**
+ * WordPress Works API Response Interface
+ */
+interface WordPressWorkResponse {
+  id: number;
+  title: {
+    rendered: string;
+  };
+  slug: string;
+  excerpt: {
+    rendered: string;
+  };
+  content: {
+    rendered: string;
+  };
+  date: string;
+  modified: string;
+  featured_media: number;
+  work_details?: {
+    description?: string;
+    image1?: string;
+    image1_alt?: string;
+    image2?: string;
+    image2_alt?: string;
+    featured?: boolean;
+    order?: number;
+  };
+  work_category_names?: string;
+  _embedded?: {
+    "wp:featuredmedia"?: Array<{
+      source_url: string;
+      alt_text: string;
+    }>;
+  };
+}
+
+/**
+ * Map WordPress API response to WorkItem interface
+ */
+function mapWordPressWorkToWorkItem(wpWork: WordPressWorkResponse): WorkItem {
+  const workDetails = wpWork.work_details || {};
+  const featuredMedia = wpWork._embedded?.["wp:featuredmedia"]?.[0];
+
+  // Get category - use work_category_names if available, otherwise default
+  const category = (wpWork.work_category_names as WorkCategory) || "Branding & Creative";
+
+  // Get images - prefer custom meta fields, fallback to featured media
+  const image1 = workDetails.image1 || featuredMedia?.source_url || "";
+  const image1Alt = workDetails.image1_alt || featuredMedia?.alt_text || wpWork.title.rendered;
+  const image2 = workDetails.image2 || "";
+  const image2Alt = workDetails.image2_alt || wpWork.title.rendered;
+
+  // Get description - prefer custom meta field, fallback to excerpt
+  const description = workDetails.description || 
+    wpWork.excerpt?.rendered?.replace(/<[^>]*>/g, "").trim() || 
+    "";
+
+  return {
+    id: wpWork.id,
+    title: wpWork.title.rendered,
+    description: description,
+    category: category as WorkCategory,
+    image1: image1,
+    image2: image2,
+    image1Alt: image1Alt,
+    image2Alt: image2Alt,
+    featured: workDetails.featured || false,
+    order: workDetails.order || wpWork.id,
+    slug: wpWork.slug,
+    date: wpWork.date,
+  };
+}
+
+/**
  * Fetch all works from WordPress
- * This will be implemented when WordPress custom post type is set up
  */
 export async function fetchWorks(): Promise<WorkItem[]> {
   try {
-    // TODO: Replace with actual WordPress API endpoint when custom post type is ready
-    // For now, return empty array or mock data
-    const works = await fetchWordPressData<WorkItem[]>(
-      "/wp-json/wp/v2/works?per_page=100"
+    // Fetch works with embedded media and custom fields
+    const wpWorks = await fetchWordPressData<WordPressWorkResponse[]>(
+      "/wp-json/wp/v2/works?per_page=100&_embed=1&status=publish"
     );
+    
+    // Map WordPress responses to WorkItem interface
+    const works = wpWorks.map(mapWordPressWorkToWorkItem);
+    
     return works;
   } catch (error) {
     console.warn("Failed to fetch works from WordPress:", error);
