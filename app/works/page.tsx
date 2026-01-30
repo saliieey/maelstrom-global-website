@@ -119,24 +119,27 @@ export default function WorksPage() {
               No works found in this category.
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-[40px] gap-y-[60px] md:gap-x-[60px] md:gap-y-[80px] lg:gap-x-[80px] lg:gap-y-[100px]">
-              {works.map((work) => (
-                <div
-                  key={work.id}
-                  className="flex flex-col h-full w-full"
-                >
-                  {/* Work Image Container - Match home page exact styling */}
-                  <div className="relative w-full mb-[10px] overflow-hidden flex items-center justify-center bg-transparent">
-                    <img
-                      src={work.image1}
-                      alt={work.image1Alt || work.title}
-                      className="w-full h-auto object-contain"
-                      style={{
-                        aspectRatio: '534.14 / 300.45',
-                        maxWidth: '100%',
-                        display: 'block',
-                      }}
-                      loading="lazy"
+            <div className="w-full [&>*]:text-left">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-[40px] gap-y-[60px] md:gap-x-[60px] md:gap-y-[80px] lg:gap-x-[80px] lg:gap-y-[100px] w-full max-w-[1400px] mx-auto">
+                {works.map((work) => (
+                  <div
+                    key={work.id}
+                    className="flex flex-col h-full w-full items-start"
+                    style={{ minHeight: 'fit-content' }}
+                  >
+                    {/* Work Image Container - Match home page exact styling */}
+                    <div className="relative w-full mb-[10px] overflow-hidden bg-transparent">
+                      <img
+                        src={work.image1}
+                        alt={work.image1Alt || work.title}
+                        className="w-full h-auto object-cover"
+                        style={{
+                          aspectRatio: '534.14 / 300.45',
+                          width: '100%',
+                          display: 'block',
+                          objectPosition: 'left top',
+                        }}
+                        loading="lazy"
                       onError={(e) => {
                         // Fallback to Unsplash image if placeholder fails
                         const target = e.target as HTMLImageElement;
@@ -155,17 +158,18 @@ export default function WorksPage() {
                     />
                   </div>
 
-                  {/* Work Title - Always visible, left-aligned */}
-                  <h3 className="font-medium text-white tracking-wide text-[15px] md:text-[22px] lg:text-[25px] my-[10px] text-left leading-tight">
-                    {work.title}
-                  </h3>
+                    {/* Work Title - Fixed height to prevent layout shift */}
+                    <h3 className="font-medium text-white tracking-wide text-[15px] md:text-[22px] lg:text-[25px] my-[10px] text-left leading-tight line-clamp-2">
+                      {work.title}
+                    </h3>
 
-                  {/* Work Description - Always visible, left-aligned */}
-                  <p className="text-white opacity-55 tracking-wide font-[thin] text-left text-[14px] md:text-[18px] leading-relaxed">
-                    {work.description}
-                  </p>
-                </div>
-              ))}
+                    {/* Work Description - Fixed height to prevent layout shift */}
+                    <p className="text-white opacity-55 tracking-wide font-[thin] text-left text-[14px] md:text-[18px] leading-relaxed line-clamp-2">
+                      {work.description}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </Container>
