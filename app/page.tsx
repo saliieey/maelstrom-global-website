@@ -14,6 +14,7 @@ import { ServicesExpandable } from "@/sections/ServicesExpandable";
 import { StatsScroll } from "@/sections/StatsScroll";
 import { ClientsSection } from "@/sections/ClientsSection";
 import { OurWorksSection } from "@/sections/OurWorksSection";
+import { Footer } from "@/sections/Footer";
 
 export default function Home() {
   return (
@@ -53,26 +54,8 @@ export default function Home() {
         <OurWorksSection />
       </div>
       
-      {/* Next Section - Flows naturally below hero with proper spacing */}
-      <section className="pt-24 pb-20 px-4 md:pt-32 md:pb-24 relative z-20 bg-transparent">
-        <div className="container mx-auto space-y-16">
-          {[...Array(6)].map((_, i) => (
-            <div 
-              key={i} 
-              className="p-8 rounded-2xl backdrop-blur-sm bg-white/5 border border-white/10"
-            >
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                Section {i + 1}
-              </h2>
-              <p className="text-white/80 leading-relaxed text-lg">
-                This is dummy content to allow scrolling and test the HeroScroll animation. 
-                Scroll down to see the video transform from full-screen to a card shape.
-                The animation will trigger as you scroll through this content area.
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
+      {/* Footer Section */}
+      <Footer />
     </main>
   );
 }
