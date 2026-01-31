@@ -166,7 +166,7 @@ export const Navigation = () => {
       <nav 
             className="flex-1 lg:flex-none lg:w-fit lg:min-w-[700px] rounded-full transition-all duration-300"
         style={{
-          background: 'rgba(255, 255, 255, 0.25)',
+          background: 'rgba(160, 160, 160, 0.25)',
           backdropFilter: 'blur(30px) saturate(180%)',
           WebkitBackdropFilter: 'blur(30px) saturate(180%)',
           border: '1px solid rgba(255, 255, 255, 0.4)',
@@ -315,7 +315,7 @@ export const Navigation = () => {
         rel="noopener noreferrer"
             className="flex-shrink-0 flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-12 lg:h-12 rounded-full transition-all duration-300 hover:scale-110 group"
         style={{
-          background: 'rgba(255, 255, 255, 0.25)',
+          background: 'rgba(160, 160, 160, 0.25)',
           backdropFilter: 'blur(30px) saturate(180%)',
           WebkitBackdropFilter: 'blur(30px) saturate(180%)',
           border: '1px solid rgba(255, 255, 255, 0.4)',
