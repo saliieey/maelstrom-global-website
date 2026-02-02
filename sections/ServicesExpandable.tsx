@@ -438,6 +438,7 @@ export const ServicesExpandable = () => {
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<HTMLDivElement[]>([]);
+  const titleRef = useRef<HTMLHeadingElement>(null);
 
   // Toggle card expansion (accordion style - only one open at a time)
   const handleToggle = (id: string) => {
@@ -445,7 +446,7 @@ export const ServicesExpandable = () => {
   };
 
 
-  // Powerful GSAP scroll animation for cards entrance
+  // Powerful GSAP scroll animation for cards entrance - Falling from top to bottom
   useEffect(() => {
     if (typeof window === "undefined") return;
     const cards = cardsRef.current.filter(Boolean);
@@ -455,19 +456,28 @@ export const ServicesExpandable = () => {
 
     const mm = gsap.matchMedia();
 
-    // Desktop and Tablet (>= 768px) - Smooth Bottom to Top Entrance (preserve CSS stagger)
+    // Animate title falling from top
+    if (titleRef.current) {
+      gsap.set(titleRef.current, {
+        autoAlpha: 0,
+        y: -60,
+        scale: 0.95,
+      });
+    }
+
+    // Desktop and Tablet (>= 768px) - Slow and smooth professional falling animation
     mm.add("(min-width: 768px)", () => {
       cards.forEach((card, index) => {
         if (!card) return;
         const staggerIndex = parseInt(card.getAttribute("data-stagger-index") || "0");
         const staggerOffset = staggerIndex > 0 ? staggerIndex * 24 : 0;
         
-        // Set initial state: cards start from bottom (y: 80px) with opacity 0
+        // Set initial state: cards start from above with visible positioning
         gsap.set(card, {
           autoAlpha: 0,
-          y: 80, // Start from bottom
+          y: -120, // Start from above (falling down) - more visible
           scale: 0.9,
-          rotationX: 5,
+          rotation: 0, // No rotation for professional look
         });
         
         // Preserve CSS stagger transform
@@ -480,20 +490,33 @@ export const ServicesExpandable = () => {
         trigger: containerRef.current,
         start: "top 80%",
         onEnter: () => {
+          // Animate title first - smooth and professional
+          if (titleRef.current) {
+            gsap.to(titleRef.current, {
+              autoAlpha: 1,
+              y: 0,
+              scale: 1,
+              duration: 0.7,
+              ease: "power2.out", // Smooth professional easing
+              force3D: true,
+            });
+          }
+
+          // Then animate cards one by one - smooth falling from top to bottom
           cards.forEach((card, index) => {
             if (!card) return;
             const staggerIndex = parseInt(card.getAttribute("data-stagger-index") || "0");
             const staggerOffset = staggerIndex > 0 ? staggerIndex * 24 : 0;
             
-            // Animate from bottom to top with smooth entrance
+            // Smooth, faster falling animation - one by one
             gsap.to(card, {
               autoAlpha: 1,
               y: staggerOffset, // Final position includes stagger
               scale: 1,
-              rotationX: 0,
-              duration: 0.9,
-              ease: "power3.out",
-              delay: index * 0.12,
+              rotation: 0,
+              duration: 0.75, // A little faster - smooth and visible
+              ease: "power2.out", // Smooth professional easing
+              delay: index * 0.6, // One by one - each card starts after previous one is almost done
               force3D: true,
               onComplete: () => {
                 // Ensure stagger transform is preserved after animation
@@ -510,25 +533,40 @@ export const ServicesExpandable = () => {
       });
     });
 
-    // Mobile (< 768px) - Smooth Bottom to Top Entrance
+    // Mobile (< 768px) - Smooth professional falling animation
     mm.add("(max-width: 767px)", () => {
       gsap.set(cards, {
         autoAlpha: 0,
-        y: 60, // Start from bottom
+        y: -100, // Start from above - more visible
         scale: 0.9,
+        rotation: 0,
       });
 
       ScrollTrigger.create({
         trigger: containerRef.current,
         start: "top 85%",
         onEnter: () => {
+          // Animate title first - smooth and professional
+          if (titleRef.current) {
+            gsap.to(titleRef.current, {
+              autoAlpha: 1,
+              y: 0,
+              scale: 1,
+              duration: 0.7,
+              ease: "power2.out",
+              force3D: true,
+            });
+          }
+
+          // Then animate cards one by one - smooth falling from top
           gsap.to(cards, {
             autoAlpha: 1,
             y: 0,
             scale: 1,
-            duration: 0.9,
-            ease: "power3.out",
-            stagger: 0.15,
+            rotation: 0,
+            duration: 0.75, // A little faster - smooth and visible
+            ease: "power2.out", // Smooth professional easing
+            stagger: 0.6, // One by one - each card starts after previous one is almost done
             force3D: true,
           });
         },
@@ -548,7 +586,10 @@ export const ServicesExpandable = () => {
     <Section id="services" padding="lg" className="bg-neutral-900">
       <Container maxWidth="xl" padding={false} className="!px-0 md:!px-6 lg:!px-8">
         {/* Section Title */}
-        <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-12 md:mb-16 text-center px-0 md:px-0">
+        <h2 
+          ref={titleRef}
+          className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-12 md:mb-16 text-center px-0 md:px-0 opacity-0"
+        >
           Our Services
         </h2>
 

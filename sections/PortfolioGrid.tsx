@@ -30,8 +30,8 @@ export const PortfolioGrid = () => {
   const topRow: PortfolioItem[] = [
     {
       id: "item-1",
-      aspectRatio: "1:1",
-      src: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1080&h=1080&fit=crop",
+      aspectRatio: "16:9",
+      src: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=1920&h=1080&fit=crop",
     },
     {
       id: "item-2",
@@ -46,7 +46,7 @@ export const PortfolioGrid = () => {
     {
       id: "item-4",
       aspectRatio: "16:9",
-      src: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=1920&h=1080&fit=crop",
+      src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&h=1080&fit=crop",
     },
     {
       id: "item-5",
@@ -86,28 +86,8 @@ export const PortfolioGrid = () => {
   const bottomRow: PortfolioItem[] = [
     {
       id: "item-11",
-      aspectRatio: "4:5",
-      src: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1080&h=1350&fit=crop",
-    },
-    {
-      id: "item-12",
-      aspectRatio: "16:9",
-      src: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=1920&h=1080&fit=crop",
-    },
-    {
-      id: "item-13",
-      aspectRatio: "9:16",
-      src: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=1080&h=1920&fit=crop",
-    },
-    {
-      id: "item-14",
-      aspectRatio: "4:5",
-      src: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=1080&h=1350&fit=crop",
-    },
-    {
-      id: "item-15",
-      aspectRatio: "4:5",
-      src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1080&h=1350&fit=crop",
+      aspectRatio: "1:1",
+      src: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1080&h=1080&fit=crop",
     },
   ];
 
@@ -256,93 +236,11 @@ export const PortfolioGrid = () => {
     };
   }, []);
 
-  // Combine all items for mobile - use same items as desktop
-  // Arrange items to match the hand-drawn mobile layout exactly:
-  // Row 1: Three 1:1 squares side by side
-  // Row 2: 16:9 spans 2 columns on left, 4:5 and 9:16 stacked vertically on right (masonry)
-  // Row 3: 1:1, 1:1, 16:9 side by side
-  // Row 4: 9:16, 4:5, 1:1 side by side
+  // Combine all items for mobile - use all 11 items same as desktop
   const allItems = [...topRow, ...middleRow, ...bottomRow];
   
-  // Extract items by type for mobile layout
-  // Available: 1:1 (item-1, item-9, item-10), 9:16 (item-2, item-3, item-7), 4:5 (item-6, item-8), 16:9 (item-4, item-5, item-11)
-  const items16_9 = allItems.filter(item => item.aspectRatio === "16:9");
-  const items1_1 = allItems.filter(item => item.aspectRatio === "1:1");
-  const items9_16 = allItems.filter(item => item.aspectRatio === "9:16");
-  const items4_5 = allItems.filter(item => item.aspectRatio === "4:5");
-  
-  // Create mobile layout pattern matching the hand-drawn design exactly
-  // Based on user description and screenshot:
-  // Row 1: Big 1:1 (col 1, spans 2 rows), two small 1:1 (cols 2-3)
-  // Right column: Two 9:16 stacked (col 3, rows 1-2) - these are above/beside the two 1:1
-  // Row 2: (big 1:1 continues), two small 1:1 continue in col 2
-  // Row 3: 16:9 below big 1:1 (spans cols 1-2, same height as big 1:1)
-  // Row 4: Two small 1:1 below 16:9 (cols 1-2)
-  // Row 5: 9:16, 4:5, big 1:1 (cols 1, 2, 3)
-  const mobileItems: Array<PortfolioItem & { gridRow?: string; gridColumn?: string; uniqueKey?: string }> = [];
-  
-  // Big 1:1 on left, spans rows 1-2, column 1
-  if (items1_1.length >= 1) {
-    const big1_1 = { ...items1_1[0], gridRow: "1 / 3", gridColumn: "1", uniqueKey: "mobile-big-1-1-row1-2" };
-    mobileItems.push(big1_1); // item-1 (1:1) - big, spans rows 1-2, column 1
-  }
-  
-  // Two small 1:1 in column 2, rows 1-2
-  if (items1_1.length >= 2) {
-    const small1_1_col2_row1 = { ...items1_1[1], gridRow: "1", gridColumn: "2", uniqueKey: "mobile-1-1-col2-row1" };
-    mobileItems.push(small1_1_col2_row1); // item-9 (1:1) - column 2, row 1
-  }
-  if (items1_1.length >= 3) {
-    const small1_1_col2_row2 = { ...items1_1[2], gridRow: "2", gridColumn: "2", uniqueKey: "mobile-1-1-col2-row2" };
-    mobileItems.push(small1_1_col2_row2); // item-10 (1:1) - column 2, row 2
-  }
-  
-  // Two 9:16 stacked in column 3, rows 1-2 (these are the tall items on the right)
-  if (items9_16.length >= 2) {
-    const item9_16_row1 = { ...items9_16[0], gridRow: "1", gridColumn: "3", uniqueKey: "mobile-9-16-col3-row1" };
-    mobileItems.push(item9_16_row1); // First 9:16 - column 3, row 1
-    const item9_16_row2 = { ...items9_16[1], gridRow: "2", gridColumn: "3", uniqueKey: "mobile-9-16-col3-row2" };
-    mobileItems.push(item9_16_row2); // Second 9:16 - column 3, row 2
-  } else if (items9_16.length >= 1) {
-    const item9_16_row1 = { ...items9_16[0], gridRow: "1 / 3", gridColumn: "3", uniqueKey: "mobile-9-16-col3-row1-2" };
-    mobileItems.push(item9_16_row1); // Single 9:16 spans rows 1-2
-  }
-  
-  // 16:9 below big 1:1 (row 3, spans columns 1-2, same height as big 1:1)
-  if (items16_9.length > 0) {
-    const item16_9 = { ...items16_9[0], gridRow: "3", gridColumn: "1 / 3", uniqueKey: "mobile-16-9-row3" };
-    mobileItems.push(item16_9); // item-4 (16:9) - spans columns 1-2, row 3
-  }
-  
-  // Two small 1:1 below 16:9 (row 4, columns 1-2)
-  // Reuse items if needed - but with unique keys
-  if (items1_1.length >= 1) {
-    const small1_1_row4_col1 = { ...items1_1[0], gridRow: "4", gridColumn: "1", uniqueKey: "mobile-1-1-row4-col1" };
-    mobileItems.push(small1_1_row4_col1); // Reuse item-1 (1:1) - column 1, row 4
-  }
-  if (items1_1.length >= 2) {
-    const small1_1_row4_col2 = { ...items1_1[1], gridRow: "4", gridColumn: "2", uniqueKey: "mobile-1-1-row4-col2" };
-    mobileItems.push(small1_1_row4_col2); // Reuse item-9 (1:1) - column 2, row 4
-  }
-  
-  // Row 5: 9:16, 4:5, and big 1:1
-  if (items9_16.length >= 3) {
-    const item9_16_row5 = { ...items9_16[2], gridRow: "5", gridColumn: "1", uniqueKey: "mobile-9-16-row5-col1" };
-    mobileItems.push(item9_16_row5); // item-3 (9:16) - column 1, row 5
-  } else if (items9_16.length >= 1) {
-    // Reuse if needed - but with unique key
-    const item9_16_row5 = { ...items9_16[0], gridRow: "5", gridColumn: "1", uniqueKey: "mobile-9-16-row5-col1-reuse" };
-    mobileItems.push(item9_16_row5);
-  }
-  if (items4_5.length > 0) {
-    const item4_5_row5 = { ...items4_5[0], gridRow: "5", gridColumn: "2", uniqueKey: "mobile-4-5-row5-col2" };
-    mobileItems.push(item4_5_row5); // item-6 (4:5) - column 2, row 5
-  }
-  // Big 1:1 next to them (column 3, row 5)
-  if (items1_1.length >= 3) {
-    const big1_1_row5 = { ...items1_1[2], gridRow: "5", gridColumn: "3", uniqueKey: "mobile-1-1-row5-col3" };
-    mobileItems.push(big1_1_row5); // item-10 (1:1) - column 3, row 5
-  }
+  // For mobile, use all items (11 items total)
+  const mobileItems = allItems;
 
   let itemIndex = 0;
   let mobileItemIndex = allItems.length; // Mobile items start after desktop items
@@ -375,8 +273,8 @@ export const PortfolioGrid = () => {
           }
           @media (max-width: 767px) {
             .portfolio-section {
-              padding-left: 1rem !important;
-              padding-right: 1rem !important;
+              padding-left: 16px !important;
+              padding-right: 16px !important;
               overflow-x: hidden !important;
             }
             .portfolio-grid-container-desktop {
@@ -385,36 +283,52 @@ export const PortfolioGrid = () => {
             .portfolio-grid-container-mobile {
               display: grid !important;
               grid-template-columns: repeat(3, 1fr) !important;
-              grid-auto-rows: min-content !important;
+              grid-auto-rows: minmax(0, auto) !important;
               grid-auto-flow: dense !important;
-              gap: 0 !important;
+              gap: 8px !important;
               width: 100% !important;
               margin-left: 0 !important;
               margin-right: 0 !important;
               overflow: hidden !important;
+              padding: 0 !important;
             }
             .portfolio-item-mobile {
               width: 100% !important;
-              height: auto !important;
-              border-radius: 0 !important;
+              height: 100% !important;
+              border-radius: 8px !important;
               border: none !important;
-              box-shadow: none !important;
+              box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+              margin: 0 !important;
+              padding: 0 !important;
+              position: relative !important;
+              overflow: hidden !important;
+            }
+            .portfolio-item-mobile > div {
+              position: absolute !important;
+              top: 0 !important;
+              left: 0 !important;
+              width: 100% !important;
+              height: 100% !important;
+            }
+            .portfolio-item-mobile img {
+              width: 100% !important;
+              height: 100% !important;
+              object-fit: cover !important;
+              display: block !important;
             }
             .portfolio-item-mobile-16-9 {
               aspect-ratio: 16 / 9 !important;
+              grid-column: span 2 !important;
             }
             .portfolio-item-mobile-1-1 {
               aspect-ratio: 1 / 1 !important;
             }
             .portfolio-item-mobile-9-16 {
               aspect-ratio: 9 / 16 !important;
+              grid-row: span 2 !important;
             }
             .portfolio-item-mobile-4-5 {
               aspect-ratio: 4 / 5 !important;
-            }
-            /* Ensure items with gridRow spanning work correctly */
-            .portfolio-item-mobile[style*="grid-row"] {
-              height: 100% !important;
             }
           }
           @media (min-width: 768px) {
@@ -518,41 +432,19 @@ export const PortfolioGrid = () => {
             aspectClass = "portfolio-item-mobile-4-5";
           }
           
-          // Apply explicit grid positioning if specified (for masonry layout)
-          const gridStyle: React.CSSProperties = {};
-          if ('gridRow' in item && item.gridRow) {
-            gridStyle.gridRow = item.gridRow;
-          }
-          if ('gridColumn' in item && item.gridColumn) {
-            gridStyle.gridColumn = item.gridColumn;
-          }
-          
-          // Use uniqueKey if available, otherwise fall back to item.id with index
-          const uniqueKey = 'uniqueKey' in item && item.uniqueKey 
-            ? item.uniqueKey 
-            : `mobile-${item.id}-${idx}`;
-          
           return (
             <div
-              key={uniqueKey}
+              key={item.id}
               ref={(el) => {
                 if (el) itemsRef.current[index] = el;
               }}
               className={`relative overflow-hidden bg-neutral-800 cursor-pointer group portfolio-item-mobile ${aspectClass}`}
-              style={gridStyle}
             >
               <div className="absolute inset-0 w-full h-full">
                 <img
                   src={item.src}
                   alt={item.title || `Portfolio item ${idx + 1}`}
                   className="w-full h-full object-cover"
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                    objectPosition: "center",
-                    display: "block",
-                  }}
                   loading="lazy"
                 />
               </div>

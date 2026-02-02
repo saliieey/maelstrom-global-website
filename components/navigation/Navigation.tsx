@@ -353,7 +353,7 @@ export const Navigation = () => {
           ref={mobileMenuRef}
             className="fixed top-20 sm:top-24 left-1/2 z-[60] w-[90%] sm:w-[85%] max-w-md lg:hidden rounded-2xl shadow-2xl mobile-menu-scroll"
             style={{
-              background: 'rgba(255, 255, 255, 0.25)',
+              background: 'rgba(160, 160, 160, 0.25)',
               backdropFilter: 'blur(30px) saturate(180%)',
               WebkitBackdropFilter: 'blur(30px) saturate(180%)',
               border: '1px solid rgba(255, 255, 255, 0.4)',
@@ -518,7 +518,7 @@ export const Navigation = () => {
           <div
             className="rounded-2xl shadow-2xl w-full"
             style={{
-              background: 'rgba(255, 255, 255, 0.25)',
+              background: 'rgba(160, 160, 160, 0.25)',
               backdropFilter: 'blur(30px) saturate(180%)',
               WebkitBackdropFilter: 'blur(30px) saturate(180%)',
               border: '1px solid rgba(255, 255, 255, 0.4)',
