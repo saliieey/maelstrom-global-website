@@ -119,10 +119,14 @@ const ServiceCard = ({
   const linksRef = useRef<HTMLUListElement>(null);
   const imageRef = useRef<HTMLDivElement>(null);
   const [cardDimensions, setCardDimensions] = useState({ width: '100%', height: 'clamp(450px, 60vw, 526.81px)' });
+  const [isMobile, setIsMobile] = useState(false);
 
   // Set responsive card dimensions
   useEffect(() => {
     const updateDimensions = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      
       if (window.innerWidth >= 768) {
         // Desktop: Original sizing
         setCardDimensions({
@@ -130,10 +134,10 @@ const ServiceCard = ({
           height: 'clamp(373px, 26.67vw, 526.81px)',
         });
       } else {
-        // Mobile: Larger sizing
+        // Mobile: Premium professional sizing with ideal proportions
         setCardDimensions({
           width: '100%',
-          height: 'clamp(450px, 60vw, 526.81px)',
+          height: 'clamp(380px, 50vh, 420px)',
         });
       }
     };
@@ -289,17 +293,28 @@ const ServiceCard = ({
   return (
     <div 
       ref={cardRef}
-      className="relative rounded-2xl overflow-hidden group cursor-pointer w-full md:w-auto"
+      className={`relative overflow-hidden group cursor-pointer w-full md:w-auto ${isMobile ? 'rounded-xl' : 'rounded-2xl'}`}
       style={{
         willChange: "transform",
         width: cardDimensions.width,
         maxWidth: "100%",
         height: cardDimensions.height,
-        background: 'rgba(255, 255, 255, 0.05)',
-        backdropFilter: 'blur(20px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
-        boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.1)',
+        ...(isMobile ? {
+          // Mobile: Professional corporate styling
+          borderRadius: '12px', // Professional corporate border radius
+          background: 'rgba(255, 255, 255, 0.08)',
+          backdropFilter: 'blur(24px) saturate(200%)',
+          WebkitBackdropFilter: 'blur(24px) saturate(200%)',
+          border: '1.5px solid rgba(255, 255, 255, 0.15)',
+          boxShadow: '0 12px 48px 0 rgba(0, 0, 0, 0.4), 0 4px 16px 0 rgba(0, 0, 0, 0.2), inset 0 1px 0 0 rgba(255, 255, 255, 0.2)',
+        } : {
+          // Desktop: Original styling
+          background: 'rgba(255, 255, 255, 0.05)',
+          backdropFilter: 'blur(20px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.1)',
+        }),
       }}
     >
       {/* Layer 1 (Bottom - z-0): Background Image */}
@@ -332,13 +347,13 @@ const ServiceCard = ({
       >
         
         {/* Navigation Links - Vertically Centered with Top Spacing (Serienreif Style) */}
-        <div className="h-full flex flex-col items-center justify-center p-6 md:p-8 pt-16 md:pt-20">
-          <ul ref={linksRef} className="space-y-4 md:space-y-5 w-full max-w-xs text-center">
+        <div className={`h-full flex flex-col items-center justify-center ${isMobile ? 'p-8 pt-20' : 'p-6 md:p-8 pt-16 md:pt-20'}`}>
+          <ul ref={linksRef} className={`${isMobile ? 'space-y-5' : 'space-y-4 md:space-y-5'} w-full max-w-xs text-center`}>
             {service.subLinks.map((link, linkIndex) => (
               <li key={linkIndex} className="opacity-0">
                 <a
                   href="#"
-                  className="group flex items-center justify-center text-xl text-white/90 hover:text-white transition-all duration-300 py-2 font-medium"
+                  className={`group flex items-center justify-center ${isMobile ? 'text-2xl' : 'text-xl'} text-white/90 hover:text-white transition-all duration-300 py-2 font-medium`}
                   style={{
                     textShadow: "0 2px 8px rgba(0, 0, 0, 0.5)",
                   }}
@@ -376,9 +391,9 @@ const ServiceCard = ({
 
       {/* Layer 3 (Top - z-20): Anchors - Always Visible */}
       {/* Title - Top Center (Professional Style) */}
-      <div className="absolute top-4 left-0 right-0 md:top-5 z-20 pointer-events-none flex items-center justify-center px-4 md:px-6">
+      <div className={`absolute z-20 pointer-events-none flex items-center justify-center ${isMobile ? 'top-5 left-0 right-0 px-5' : 'top-4 left-0 right-0 md:top-5 px-4 md:px-6'}`}>
         <h3 
-          className="text-lg md:text-xl lg:text-2xl font-semibold text-white leading-tight text-center"
+          className={`${isMobile ? 'text-xl' : 'text-lg md:text-xl lg:text-2xl'} font-semibold text-white leading-tight text-center`}
           style={{
             textShadow: "0 2px 12px rgba(0, 0, 0, 0.9), 0 4px 8px rgba(0, 0, 0, 0.6)",
             letterSpacing: "0.01em",
@@ -395,13 +410,23 @@ const ServiceCard = ({
           e.preventDefault();
           onToggle();
         }}
-        className="absolute bottom-5 right-5 md:bottom-6 md:right-6 z-20 w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center text-white transition-all duration-300 cursor-pointer"
+        className={`absolute z-20 rounded-full flex items-center justify-center text-white transition-all duration-300 cursor-pointer ${isMobile ? 'bottom-6 right-6 w-12 h-12' : 'bottom-5 right-5 md:bottom-6 md:right-6 w-10 h-10 md:w-11 md:h-11'}`}
         style={{
-          background: 'rgba(255, 255, 255, 0.25)',
-          backdropFilter: 'blur(20px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-          border: '1px solid rgba(255, 255, 255, 0.35)',
-          boxShadow: '0 4px 16px 0 rgba(0, 0, 0, 0.25), inset 0 1px 0 0 rgba(255, 255, 255, 0.4)',
+          ...(isMobile ? {
+            // Mobile: Premium button styling
+            background: 'rgba(255, 255, 255, 0.3)',
+            backdropFilter: 'blur(24px) saturate(200%)',
+            WebkitBackdropFilter: 'blur(24px) saturate(200%)',
+            border: '1.5px solid rgba(255, 255, 255, 0.4)',
+            boxShadow: '0 6px 20px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.5)',
+          } : {
+            // Desktop: Original styling
+            background: 'rgba(255, 255, 255, 0.25)',
+            backdropFilter: 'blur(20px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+            border: '1px solid rgba(255, 255, 255, 0.35)',
+            boxShadow: '0 4px 16px 0 rgba(0, 0, 0, 0.25), inset 0 1px 0 0 rgba(255, 255, 255, 0.4)',
+          }),
         }}
         onMouseEnter={(e) => {
           gsap.to(e.currentTarget, {
@@ -583,12 +608,38 @@ export const ServicesExpandable = () => {
   }, []);
 
   return (
-    <Section id="services" padding="lg" className="bg-neutral-900">
+    <Section 
+      id="services" 
+      padding="lg" 
+      className="bg-neutral-900 services-section"
+    >
       <Container maxWidth="xl" padding={false} className="!px-0 md:!px-6 lg:!px-8">
+        {/* Mobile-specific styles */}
+        <style dangerouslySetInnerHTML={{
+          __html: `
+            @media (max-width: 767px) {
+              .services-section {
+                padding-left: 16px !important;
+                padding-right: 16px !important;
+              }
+              .services-container-mobile {
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+                gap: 1.25rem !important;
+              }
+              .services-title-mobile {
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+                margin-bottom: 2rem !important;
+              }
+            }
+          `
+        }} />
+        
         {/* Section Title */}
         <h2 
           ref={titleRef}
-          className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-12 md:mb-16 text-center px-0 md:px-0 opacity-0"
+          className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-12 md:mb-16 text-center px-0 md:px-0 opacity-0 services-title-mobile"
         >
           Our Services
         </h2>
@@ -596,9 +647,9 @@ export const ServicesExpandable = () => {
          {/* Services Grid - Staggered on Desktop (Serienreif Style - Cascading Layout) */}
          <div
            ref={containerRef}
-           className="flex flex-col lg:flex-row lg:flex-nowrap lg:justify-center lg:items-start relative w-full px-0 md:px-6 lg:px-8"
+           className="flex flex-col lg:flex-row lg:flex-nowrap lg:justify-center lg:items-start relative w-full px-0 md:px-6 lg:px-8 services-container-mobile"
            style={{
-             gap: "1.5rem", // 24px gap between cards
+             gap: "1.5rem", // 24px gap between cards on desktop
              overflow: "visible", // No scrollbar - all cards visible
            }}
          >
