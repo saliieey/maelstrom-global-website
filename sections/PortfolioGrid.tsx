@@ -128,19 +128,19 @@ export const PortfolioGrid = () => {
     mm.add("(min-width: 768px)", () => {
       gsap.set(items, {
         autoAlpha: 0,
-        y: 50,
+        y: 40,
       });
 
       const trigger = ScrollTrigger.create({
         trigger: container,
-        start: "top 85%",
+        start: "top 90%",
         onEnter: () => {
           gsap.to(items, {
             autoAlpha: 1,
             y: 0,
-            duration: 0.8,
-            ease: "power2.out",
-            stagger: 0.1,
+            duration: 0.5,
+            ease: "power1.out",
+            stagger: 0.03,
             force3D: true,
           });
         },
@@ -158,14 +158,14 @@ export const PortfolioGrid = () => {
 
       const trigger = ScrollTrigger.create({
         trigger: container,
-        start: "top 85%",
+        start: "top 90%",
         onEnter: () => {
           gsap.to(items, {
             autoAlpha: 1,
             y: 0,
-            duration: 0.6,
-            ease: "power2.out",
-            stagger: 0.08,
+            duration: 0.4,
+            ease: "power1.out",
+            stagger: 0.02,
             force3D: true,
           });
         },

@@ -460,8 +460,8 @@ export const ServicesExpandable = () => {
     if (titleRef.current) {
       gsap.set(titleRef.current, {
         autoAlpha: 0,
-        y: -60,
-        scale: 0.95,
+        y: -30,
+        scale: 0.98,
       });
     }
 
@@ -475,8 +475,8 @@ export const ServicesExpandable = () => {
         // Set initial state: cards start from above with visible positioning
         gsap.set(card, {
           autoAlpha: 0,
-          y: -120, // Start from above (falling down) - more visible
-          scale: 0.9,
+          y: -40, // Start from above (falling down) - smoother
+          scale: 0.95,
           rotation: 0, // No rotation for professional look
         });
         
@@ -488,7 +488,7 @@ export const ServicesExpandable = () => {
 
       ScrollTrigger.create({
         trigger: containerRef.current,
-        start: "top 80%",
+        start: "top 90%",
         onEnter: () => {
           // Animate title first - smooth and professional
           if (titleRef.current) {
@@ -496,8 +496,8 @@ export const ServicesExpandable = () => {
               autoAlpha: 1,
               y: 0,
               scale: 1,
-              duration: 0.7,
-              ease: "power2.out", // Smooth professional easing
+              duration: 0.5,
+              ease: "power1.out", // Smooth professional easing
               force3D: true,
             });
           }
@@ -514,9 +514,9 @@ export const ServicesExpandable = () => {
               y: staggerOffset, // Final position includes stagger
               scale: 1,
               rotation: 0,
-              duration: 0.75, // A little faster - smooth and visible
-              ease: "power2.out", // Smooth professional easing
-              delay: index * 0.6, // One by one - each card starts after previous one is almost done
+              duration: 0.5, // Faster - smooth and visible
+              ease: "power1.out", // Smooth professional easing
+              delay: index * 0.05, // Much faster stagger - cards appear almost simultaneously
               force3D: true,
               onComplete: () => {
                 // Ensure stagger transform is preserved after animation
@@ -537,14 +537,14 @@ export const ServicesExpandable = () => {
     mm.add("(max-width: 767px)", () => {
       gsap.set(cards, {
         autoAlpha: 0,
-        y: -100, // Start from above - more visible
-        scale: 0.9,
+        y: -30, // Start from above - smoother
+        scale: 0.95,
         rotation: 0,
       });
 
       ScrollTrigger.create({
         trigger: containerRef.current,
-        start: "top 85%",
+        start: "top 90%",
         onEnter: () => {
           // Animate title first - smooth and professional
           if (titleRef.current) {
@@ -552,8 +552,8 @@ export const ServicesExpandable = () => {
               autoAlpha: 1,
               y: 0,
               scale: 1,
-              duration: 0.7,
-              ease: "power2.out",
+              duration: 0.4,
+              ease: "power1.out",
               force3D: true,
             });
           }
@@ -564,9 +564,9 @@ export const ServicesExpandable = () => {
             y: 0,
             scale: 1,
             rotation: 0,
-            duration: 0.75, // A little faster - smooth and visible
-            ease: "power2.out", // Smooth professional easing
-            stagger: 0.6, // One by one - each card starts after previous one is almost done
+            duration: 0.4, // Faster - smooth and visible
+            ease: "power1.out", // Smooth professional easing
+            stagger: 0.03, // Much faster stagger - cards appear almost simultaneously
             force3D: true,
           });
         },
