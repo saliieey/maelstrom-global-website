@@ -30,8 +30,8 @@ export const PortfolioGrid = () => {
   const topRow: PortfolioItem[] = [
     {
       id: "item-1",
-      aspectRatio: "16:9",
-      src: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=1920&h=1080&fit=crop",
+      aspectRatio: "1:1",
+      src: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1080&h=1080&fit=crop",
     },
     {
       id: "item-2",
@@ -46,7 +46,7 @@ export const PortfolioGrid = () => {
     {
       id: "item-4",
       aspectRatio: "16:9",
-      src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&h=1080&fit=crop",
+      src: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=1920&h=1080&fit=crop",
     },
     {
       id: "item-5",
@@ -86,8 +86,28 @@ export const PortfolioGrid = () => {
   const bottomRow: PortfolioItem[] = [
     {
       id: "item-11",
-      aspectRatio: "1:1",
-      src: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1080&h=1080&fit=crop",
+      aspectRatio: "4:5",
+      src: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1080&h=1350&fit=crop",
+    },
+    {
+      id: "item-12",
+      aspectRatio: "16:9",
+      src: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=1920&h=1080&fit=crop",
+    },
+    {
+      id: "item-13",
+      aspectRatio: "9:16",
+      src: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=1080&h=1920&fit=crop",
+    },
+    {
+      id: "item-14",
+      aspectRatio: "4:5",
+      src: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=1080&h=1350&fit=crop",
+    },
+    {
+      id: "item-15",
+      aspectRatio: "4:5",
+      src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1080&h=1350&fit=crop",
     },
   ];
 
@@ -239,8 +259,22 @@ export const PortfolioGrid = () => {
   // Combine all items for mobile - use all 11 items same as desktop
   const allItems = [...topRow, ...middleRow, ...bottomRow];
   
-  // For mobile, use all items (11 items total)
-  const mobileItems = allItems;
+  // For mobile: remove items from bottom and replace Netflix item with item from top
+  // Remove last items from bottomRow, replace item-10 with item-1 from topRow
+  const mobileMiddleRow = middleRow.map(item => 
+    item.id === "item-10" ? { ...topRow[0], id: "mobile-item-10-replacement" } : item
+  );
+  // Add a 1:1 item next to Instagram (item-10) for visual consistency
+  // Create a duplicate 1:1 item to place next to Instagram
+  const instagramDuplicate: PortfolioItem = {
+    ...topRow[0],
+    id: "mobile-instagram-duplicate",
+  };
+  // Insert the duplicate right after item-10 (which is now at the end of middleRow)
+  const mobileMiddleRowWithInstagram = [...mobileMiddleRow, instagramDuplicate];
+  // Only keep first 1 item from bottomRow for mobile (remove last item)
+  const mobileBottomRow = bottomRow.slice(0, 1);
+  const mobileItems = [...topRow, ...mobileMiddleRowWithInstagram, ...mobileBottomRow];
 
   let itemIndex = 0;
   let mobileItemIndex = allItems.length; // Mobile items start after desktop items
