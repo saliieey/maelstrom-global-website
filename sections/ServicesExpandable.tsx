@@ -309,11 +309,11 @@ const ServiceCard = ({
           boxShadow: '0 12px 48px 0 rgba(0, 0, 0, 0.4), 0 4px 16px 0 rgba(0, 0, 0, 0.2), inset 0 1px 0 0 rgba(255, 255, 255, 0.2)',
         } : {
           // Desktop: Original styling
-          background: 'rgba(255, 255, 255, 0.05)',
-          backdropFilter: 'blur(20px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.1)',
+        background: 'rgba(255, 255, 255, 0.05)',
+        backdropFilter: 'blur(20px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.1)',
         }),
       }}
     >
@@ -347,13 +347,13 @@ const ServiceCard = ({
       >
         
         {/* Navigation Links - Vertically Centered with Top Spacing (Serienreif Style) */}
-        <div className={`h-full flex flex-col items-center justify-center ${isMobile ? 'p-8 pt-20' : 'p-6 md:p-8 pt-16 md:pt-20'}`}>
-          <ul ref={linksRef} className={`${isMobile ? 'space-y-5' : 'space-y-4 md:space-y-5'} w-full max-w-xs text-center`}>
+        <div className={`h-full flex flex-col items-center justify-center ${isMobile ? 'p-6 pt-20' : 'p-6 md:p-8 pt-16 md:pt-20'}`}>
+          <ul ref={linksRef} className={`${isMobile ? 'space-y-3' : 'space-y-4 md:space-y-5'} w-full max-w-xs text-center`}>
             {service.subLinks.map((link, linkIndex) => (
               <li key={linkIndex} className="opacity-0">
                 <a
                   href="#"
-                  className={`group flex items-center justify-center ${isMobile ? 'text-2xl' : 'text-xl'} text-white/90 hover:text-white transition-all duration-300 py-2 font-medium`}
+                  className={`group flex items-center justify-center ${isMobile ? 'text-lg' : 'text-xl'} text-white/90 hover:text-white transition-all duration-300 ${isMobile ? 'py-2' : 'py-2'} font-medium`}
                   style={{
                     textShadow: "0 2px 8px rgba(0, 0, 0, 0.5)",
                   }}
@@ -421,11 +421,11 @@ const ServiceCard = ({
             boxShadow: '0 6px 20px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.5)',
           } : {
             // Desktop: Original styling
-            background: 'rgba(255, 255, 255, 0.25)',
-            backdropFilter: 'blur(20px) saturate(180%)',
-            WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-            border: '1px solid rgba(255, 255, 255, 0.35)',
-            boxShadow: '0 4px 16px 0 rgba(0, 0, 0, 0.25), inset 0 1px 0 0 rgba(255, 255, 255, 0.4)',
+          background: 'rgba(255, 255, 255, 0.25)',
+          backdropFilter: 'blur(20px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+          border: '1px solid rgba(255, 255, 255, 0.35)',
+          boxShadow: '0 4px 16px 0 rgba(0, 0, 0, 0.25), inset 0 1px 0 0 rgba(255, 255, 255, 0.4)',
           }),
         }}
         onMouseEnter={(e) => {
