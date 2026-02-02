@@ -55,7 +55,7 @@ export const Footer = () => {
       href: "https://instagram.com/maelstromglobal",
       icon: (
         <svg
-          className="transition duration-300 hover:filter hover:invert"
+          className="transition-colors duration-300 group-hover:stroke-[#f26533]"
           xmlns="http://www.w3.org/2000/svg"
           width="24"
           height="24"
@@ -77,7 +77,7 @@ export const Footer = () => {
       href: "https://youtube.com/@maelstromglobal",
       icon: (
         <svg
-          className="transition duration-300 hover:filter hover:invert"
+          className="transition-colors duration-300 group-hover:stroke-[#f26533]"
           xmlns="http://www.w3.org/2000/svg"
           width="28"
           height="28"
@@ -98,7 +98,7 @@ export const Footer = () => {
       href: "https://twitter.com/maelstromglobal",
       icon: (
         <svg
-          className="transition duration-300 hover:filter hover:invert"
+          className="transition-colors duration-300 group-hover:stroke-[#f26533]"
           xmlns="http://www.w3.org/2000/svg"
           width="26"
           height="26"
@@ -118,7 +118,7 @@ export const Footer = () => {
       href: "https://facebook.com/maelstromglobal",
       icon: (
         <svg
-          className="transition duration-300 hover:filter hover:invert"
+          className="transition-colors duration-300 group-hover:stroke-[#f26533]"
           xmlns="http://www.w3.org/2000/svg"
           width="24"
           height="24"
@@ -203,6 +203,13 @@ export const Footer = () => {
 
   return (
     <footer className="bg-black w-full text-gray-400 py-8 px-2 sm:py-12 sm:px-6 lg:py-16 xl:px-24">
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          .social-link-group:hover svg {
+            stroke: #f26533 !important;
+          }
+        `
+      }} />
       <div className="container mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-1 text-sm sm:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-12">
           {/* Column 1: Company */}
@@ -340,7 +347,7 @@ export const Footer = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     href={social.href}
-                    className="hover:text-gray-400 transition-colors flex items-center"
+                    className="social-link-group transition-colors flex items-center"
                     aria-label={social.name}
                   >
                     {social.icon}
